@@ -159,7 +159,7 @@ public:
 		nastdestroyed = ZERO;
 		mouseThrustOn = false;
 		//build 15 asteroids...
-		for (int j=0; j<5; j++) {
+		for (int j=0; j<15; j++) {
 			Asteroid *a = new Asteroid;
 			a->nverts = 8;
 			a->radius = rnd()*80.0 + 40.0;
@@ -448,7 +448,7 @@ void check_mouse(XEvent *e)
 				}
 			}
 		}
-	}
+	} // end of ButtonPress
 	if (e->type == MotionNotify) {
 		if (savex != e->xbutton.x || savey != e->xbutton.y) {
 			//Mouse moved
@@ -517,6 +517,9 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
+		case XK_e:
+			powText();
+			break;
 		case XK_f:
 			break;
 		case XK_s:

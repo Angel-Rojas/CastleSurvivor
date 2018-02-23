@@ -7,13 +7,19 @@
 //#include <iostream>
 #include "Common.h"
 #include "angelR.h"
-using namespace std;
+#define POW  "Pow!"
+
 void printHello()
 {
-    	/*std::*/cout << "Hello World!" << endl;
-	return;
+    cout << "Hello World!" << endl;
+    return;
 }
 
+void powText()
+{
+    cout << POW << endl;
+    return;
 
+}
 
 
