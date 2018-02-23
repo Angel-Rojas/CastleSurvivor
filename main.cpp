@@ -39,6 +39,7 @@ using namespace std;
 // These lines were 'merged' from Abdullah's original main.cpp file
 #include "Common.h"
 #include "angelR.cpp"
+#include "angelR.h"
 #include "Abdullah_Aljahdali.h"
 
 
@@ -100,7 +101,7 @@ public:
 public:
 	Ship() {
 		VecZero(dir);
-		pos[ZERO] = (Flt)(gl.xres/2);
+		pos[ZERO] = (Flt)(0);
 		pos[1] = (Flt)(gl.yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
@@ -158,7 +159,7 @@ public:
 		nastdestroyed = ZERO;
 		mouseThrustOn = false;
 		//build 15 asteroids...
-		for (int j=0; j<15; j++) {
+		for (int j=0; j<5; j++) {
 			Asteroid *a = new Asteroid;
 			a->nverts = 8;
 			a->radius = rnd()*80.0 + 40.0;
@@ -178,7 +179,7 @@ public:
 			a->color[ZERO] = rnd() + 0.4;
 			a->color[1] = rnd() + 0.3;
 			a->color[2] = rnd() + 0.2;
-			a->vel[0] = (Flt)(rnd()*2.0-1.0);
+			a->vel[0] = -1;//(Flt)(rnd()*2.0-1.0);
 			a->vel[1] = (Flt)(rnd()*2.0-1.0);
 			//std::cout << "asteroid" << std::endl;
 			//add to front of linked list
@@ -238,7 +239,7 @@ public:
 	void set_title() {
 		//Set the window title bar.
 		XMapWindow(dpy, win);
-		XStoreName(dpy, win, "Asteroids template");
+		XStoreName(dpy, win, "Castle Survivor");
 	}
 	void check_resize(XEvent *e) {
 		//The ConfigureNotify is sent by the
@@ -558,7 +559,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 }
 
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
-{
+{/*
 	//build ta from a
 	ta->nverts = 8;
 	ta->radius = a->radius / 2.0;
@@ -580,14 +581,15 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->color[2] = rnd();
 	ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
+	*/
 }
 
 void physics()
 {
 	Flt d0,d1,dist;
 	//Update ship position
-	g.ship.pos[0] += g.ship.vel[0];
-	g.ship.pos[1] += g.ship.vel[1];
+	//g.ship.pos[0] += g.ship.vel[0];
+	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	if (g.ship.pos[0] < 0.0) {
 		g.ship.pos[0] += (float)gl.xres;
@@ -637,11 +639,12 @@ void physics()
 		i++;
 	}
 	//
-	//Update asteroid positions
+	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
 	while (a) {
+	    	/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 		a->pos[0] += a->vel[0];
-		a->pos[1] += a->vel[1];
+		//a->pos[1] += a->vel[1];
 		//Check for collision with window edges
 		if (a->pos[0] < -100.0) {
 			a->pos[0] += (float)gl.xres+200;
@@ -655,7 +658,8 @@ void physics()
 		else if (a->pos[1] > (float)gl.yres+100) {
 			a->pos[1] -= (float)gl.yres+200;
 		}
-		a->angle += a->rotate;
+		// The following line causes the object to rotate
+		//a->angle += a->rotate;
 		a = a->next;
 	}
 	//
@@ -680,14 +684,16 @@ void physics()
 				g.nastdestroyed++;
 
 			    	if (a->radius > MINIMUM_ASTEROID_SIZE) {
-					//break it into pieces.
+					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
+					 * LITTLER OBJECTS
+				    	//break it into pieces.
 					Asteroid *ta = a;
-					buildAsteroidFragment(ta, a);
+					//buildAsteroidFragment(ta, a);
 					int r = rand()%10+5;
 					for (int k=0; k<r; k++) {
 						//get the next asteroid position in the array
 						Asteroid *ta = new Asteroid;
-						buildAsteroidFragment(ta, a);
+						//buildAsteroidFragment(ta, a);
 						//add to front of asteroid linked list
 						ta->next = g.ahead;
 						if (g.ahead != NULL)
@@ -695,7 +701,7 @@ void physics()
 						g.ahead = ta;
 						g.nasteroids++;
 					}
-				} else {
+				} else {*/
 					a->color[0] = 1.0;
 					a->color[1] = MINIMUM_TIME;
 					a->color[2] = MINIMUM_TIME;
@@ -794,16 +800,17 @@ void physics()
 
 void render()
 {
+    	//printHello(); // Angel wrote this to test his func
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
-	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
+	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
+	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
 	//
 	//-------------
 	//Draw the ship
