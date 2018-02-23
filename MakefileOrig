@@ -1,0 +1,4 @@
+all: main
+
+main: main.cpp Common.h Abdullah_Aljahdali.h angelR.cpp
+	g++ main.cpp -o main
