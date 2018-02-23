@@ -517,7 +517,7 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
-		case XK_e:
+		case XK_p:
 			powText();
 			break;
 		case XK_f:
