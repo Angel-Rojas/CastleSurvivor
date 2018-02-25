@@ -40,6 +40,8 @@ using namespace std;
 #include "Common.h"
 #include "angelR.cpp"
 #include "angelR.h"
+#include "nygelA.cpp"
+#include "nygelA.h"
 #include "Abdullah_Aljahdali.h"
 
 
@@ -560,6 +562,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 	}
 	delete node;
 	node = NULL;
+    hello();
 }
 
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
