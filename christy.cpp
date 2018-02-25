@@ -19,7 +19,7 @@ void printName(){
 	c.left = 15;
 	c.center = 0;
 	ggprint8b(&c, 16, 0x00ff0000, "Christy");	*/
-	cout << "Christy";
+	cout << "Christy" << endl;
 	return;
 }
 
