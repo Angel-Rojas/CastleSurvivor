@@ -562,7 +562,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 	}
 	delete node;
 	node = NULL;
-    hello();
+    hello();//nygel's test function
 }
 
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
