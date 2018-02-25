@@ -43,6 +43,8 @@ using namespace std;
 #include "nygelA.cpp"
 #include "nygelA.h"
 #include "Abdullah_Aljahdali.h"
+#include "christy.cpp"
+#include "christy.h"
 
 
 //defined types
@@ -819,6 +821,8 @@ void render()
 	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
 	//
+	//christy print name
+	printName();
 	//-------------
 	//Draw the ship
 	glColor3fv(g.ship.color);
