@@ -14,8 +14,8 @@ LFLAGS = -lrt -lX11 -lGL
 
 all: main
 
-main: main.cpp timers.cpp log.cpp Common.h Abdullah_Aljahdali.h angelR.cpp angelR.h christy.cpp christy.h
-	g++ $(CFLAGS) main.cpp log.cpp timers.cpp angelR.cpp christy.cpp \
+main: main.cpp timers.cpp log.cpp Common.h Abdullah_Aljahdali.h angelR.cpp angelR.h christy.cpp christy.h nygelA.cpp nygelA.h
+	g++ $(CFLAGS) main.cpp log.cpp timers.cpp \
 	libggfonts.a -Wall $(LFLAGS) -o main
 
 clean:
