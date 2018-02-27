@@ -9,8 +9,8 @@
 # make clean
 #
 CFLAGS = -I ./include
-#LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm
-LFLAGS = -lrt -lX11 -lGL
+LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm
+#LFLAGS = -lrt -lX11 -lGL
 
 all: main
 

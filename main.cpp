@@ -28,9 +28,9 @@
 using namespace std;
 #include <unistd.h>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
+#include <X11/Xutil.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
@@ -822,6 +822,7 @@ void render()
 	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
 	//
 	//christy print name
+    void printName();
 	printName();
 	//-------------
 	//Draw the ship
