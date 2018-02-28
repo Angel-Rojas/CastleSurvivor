@@ -11,7 +11,7 @@
 // X11 OpenGL initial
 //
 //
-// 
+//
 //
 //program: asteroids.cpp
 //author:  Gordon Griesel
@@ -33,7 +33,7 @@ using namespace std;
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-#include "log.h"
+// #include "log.h"
 #include "fonts.h"
 
 // These lines were 'merged' from Abdullah's original main.cpp file
@@ -42,7 +42,7 @@ using namespace std;
 #include "angelR.h"
 #include "nygelA.cpp"
 #include "nygelA.h"
-#include "Abdullah_Aljahdali.h"
+#include "abdullahA.h"
 #include "christy.cpp"
 #include "christy.h"
 
@@ -222,7 +222,7 @@ public:
 		if (vi == NULL) {
 			std::cout << "\n\tno appropriate visual found\n" << std::endl;
 			exit(EXIT_FAILURE);
-		} 
+		}
 		Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 		swa.colormap = cmap;
 		swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
@@ -234,7 +234,7 @@ public:
 		set_title();
 		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 		glXMakeCurrent(dpy, win, glc);
-		show_mouse_cursor(0);
+		// show_mouse_cursor(0);
 	}
 	~X11_wrapper() {
 		XDestroyWindow(dpy, win);
@@ -320,7 +320,7 @@ void render();
 //==========================================================================
 int main()
 {
-	logOpen();
+	// logOpen();
 	init_opengl();
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
@@ -336,8 +336,8 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
-	cleanup_fonts();
-	logClose();
+	// cleanup_fonts();
+	// logClose();
 	return 0;
 }
 
@@ -360,7 +360,7 @@ void init_opengl()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+	// initialize_fonts();
 }
 
 void normalize2d(Vec v)
@@ -454,47 +454,54 @@ void check_mouse(XEvent *e)
 			}
 		}
 	} // end of ButtonPress
+	// if (e->type == MotionNotify) {
+	// 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	// 		//Mouse moved
+	// 		int xdiff = savex - e->xbutton.x;
+	// 		int ydiff = savey - e->xbutton.y;
+	// 		if (++ct < 10)
+	// 			return;
+	// 		if (xdiff > 0) {
+	// 			//mouse moved along the x-axis.
+	// 			g.ship.angle += 0.05f * (float)xdiff;
+	// 			if (g.ship.angle >= 360.0f)
+	// 				g.ship.angle -= 360.0f;
+	// 		}
+	// 		else if (xdiff < 0) {
+	// 			g.ship.angle += 0.05f * (float)xdiff;
+	// 			if (g.ship.angle < 0.0f)
+	// 				g.ship.angle += 360.0f;
+	// 		}
+	// 		if (ydiff > 0) {
+	// 			//mouse moved along the y-axis.
+	// 			//apply thrust
+	// 			//convert ship angle to radians
+	// 			Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+	// 			//convert angle to a vector
+	// 			Flt xdir = cos(rad);
+	// 			Flt ydir = sin(rad);
+	// 			g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
+	// 			g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
+	// 			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+	// 				g.ship.vel[1]*g.ship.vel[1])/100;
+	// 			if (speed > 15.0f) {
+	// 				speed = 15.0f;
+	// 				normalize2d(g.ship.vel);
+	// 				g.ship.vel[0] *= speed;
+	// 				g.ship.vel[1] *= speed;
+	// 			}
+	// 			g.mouseThrustOn = true;
+	// 			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+	// 		}
+	// 		// x11.set_mouse_position(100, 100);
+	// 		// savex = savey = 100;
+	// 	}
+	// }
+
 	if (e->type == MotionNotify) {
 		if (savex != e->xbutton.x || savey != e->xbutton.y) {
-			//Mouse moved
-			int xdiff = savex - e->xbutton.x;
-			int ydiff = savey - e->xbutton.y;
-			if (++ct < 10)
-				return;		
-			if (xdiff > 0) {
-				//mouse moved along the x-axis.
-				g.ship.angle += 0.05f * (float)xdiff;
-				if (g.ship.angle >= 360.0f)
-					g.ship.angle -= 360.0f;
-			}
-			else if (xdiff < 0) {
-				g.ship.angle += 0.05f * (float)xdiff;
-				if (g.ship.angle < 0.0f)
-					g.ship.angle += 360.0f;
-			}
-			if (ydiff > 0) {
-				//mouse moved along the y-axis.
-				//apply thrust
-				//convert ship angle to radians
-				Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-				//convert angle to a vector
-				Flt xdir = cos(rad);
-				Flt ydir = sin(rad);
-				g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
-				g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
-				Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-					g.ship.vel[1]*g.ship.vel[1]);
-				if (speed > 15.0f) {
-					speed = 15.0f;
-					normalize2d(g.ship.vel);
-					g.ship.vel[0] *= speed;
-					g.ship.vel[1] *= speed;
-				}
-				g.mouseThrustOn = true;
-				clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-			}
-			x11.set_mouse_position(100, 100);
-			savex = savey = 100;
+			// //Mouse moved
+			g.ship.angle = (e->xbutton.y%(gl.yres/2))*-1;
 		}
 	}
 }
@@ -600,18 +607,18 @@ void physics()
 	//g.ship.pos[0] += g.ship.vel[0];
 	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
-	if (g.ship.pos[0] < 0.0) {
-		g.ship.pos[0] += (float)gl.xres;
-	}
-	else if (g.ship.pos[0] > (float)gl.xres) {
-		g.ship.pos[0] -= (float)gl.xres;
-	}
-	else if (g.ship.pos[1] < 0.0) {
-		g.ship.pos[1] += (float)gl.yres;
-	}
-	else if (g.ship.pos[1] > (float)gl.yres) {
-		g.ship.pos[1] -= (float)gl.yres;
-	}
+	// if (g.ship.pos[0] < 0.0) {
+	// 	g.ship.pos[0] += (float)gl.xres;
+	// }
+	// else if (g.ship.pos[0] > (float)gl.xres) {
+	// 	g.ship.pos[0] -= (float)gl.xres;
+	// }
+	// else if (g.ship.pos[1] < 0.0) {
+	// 	g.ship.pos[1] += (float)gl.yres;
+	// }
+	// else if (g.ship.pos[1] > (float)gl.yres) {
+	// 	g.ship.pos[1] -= (float)gl.yres;
+	// }
 	//
 	//Update bullet positions
 	struct timespec bt;
@@ -816,13 +823,13 @@ void render()
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
-	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
-	//
-	//christy print name
-	printName();
+	// ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
+	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
+	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
+	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
+	// //
+	// //christy print name
+	// printName();
 	//-------------
 	//Draw the ship
 	glColor3fv(g.ship.color);
@@ -910,9 +917,3 @@ void render()
 		++b;
 	}
 }
-
-
-
-
-
-
