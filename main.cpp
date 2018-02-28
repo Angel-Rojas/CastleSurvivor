@@ -501,7 +501,7 @@ void check_mouse(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (savex != e->xbutton.x || savey != e->xbutton.y) {
 			// //Mouse moved
-			g.ship.angle = (e->xbutton.y%(gl.yres/2))*-1;
+			g.ship.angle = (e->xbutton.y%(gl.yres))*-1;
 		}
 	}
 }
