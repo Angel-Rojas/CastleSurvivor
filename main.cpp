@@ -82,6 +82,10 @@ const int ZERO = 0;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
+extern int zombiesKilled;
+extern int nextLevel;
+extern int counter;
+extern bool Nextlvl;
 //-----------------------------------------------------------------------------
 
 class Global {
@@ -134,8 +138,10 @@ public:
 	float angle;
 	float rotate;
 	float color[3];
-	struct Asteroid *prev;
-	struct Asteroid *next;
+	// Fixed Warning: Asteroid was already declared
+	// struct Asteroid *prev;
+	Asteroid *prev;
+	Asteroid *next;
 public:
 	Asteroid() {
 		prev = NULL;
@@ -314,6 +320,8 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
+void zombieKillCount();
+void nextLevel2();
 
 //==========================================================================
 // M A I N
@@ -333,7 +341,19 @@ int main()
 			done = check_keys(&e);
 		}
 		physics();
-		render();
+		//Next level check if we kill X number of Zombies
+		if (counter == 11) {
+			Nextlvl = true;
+			counter = 0;
+		} if (zombiesKilled == 11 && Nextlvl) {
+			//nextLevel2();
+			//Nextlvl = false;
+			//counter = 0;
+			//glClear(GL_COLOR_BUFFER_BIT);
+			nextLevel2();
+		} else {
+			render();
+		}
 		x11.swapBuffers();
 	}
 	// cleanup_fonts();
@@ -530,14 +550,15 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_p:
-			//powText();
 			break;
-		case XK_f:
+		case XK_o:
+			Nextlvl = false;
+			render();
+			//glClear(GL_COLOR_BUFFER_BIT);
+			//nextLevel2();
+			//sleep(1);
 			break;
 		case XK_s:
-			void zombieKillCount();
-			//extern int zombiesKilled;
-			zombieKillCount();
 			break;
 		case XK_Down:
 			break;
@@ -732,6 +753,9 @@ void physics()
 					g.nasteroids--;
 					// increment a destroyed asteroid
 					g.nastdestroyed++;
+					// Follow 2 lines are used as tracking numbers
+					zombiesKilled++;
+					counter++;
 				}
 				//delete the bullet...
 				memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
@@ -819,12 +843,11 @@ void physics()
 
 void render()
 {
-   	//printHello(); // Angel wrote this to test his func
 	//extern int zombiesKilled;
-	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	// DO NOT TRY TO PRINT TEXT ABOVE THIS LINE
 	//
+	Rect r;
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
