@@ -42,7 +42,7 @@ using namespace std;
 #include "angelR.h"
 #include "nygelA.cpp"
 #include "nygelA.h"
-#include "abdullahA.h"
+//#include "abdullahA.h"
 #include "christy.cpp"
 #include "christy.h"
 
@@ -63,8 +63,8 @@ typedef Flt	Matrix[4][4];
 						(c)[1]=(a)[1]-(b)[1]; \
 						(c)[2]=(a)[2]-(b)[2]
 //constants
-const float TIMESLICE = 1.0f;
-const float GRAVITY = -0.2f;
+//const float TIMESLICE = 1.0f;
+//const float GRAVITY = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
 const int MAX_BULLETS = 11;
@@ -78,7 +78,7 @@ const int ZERO = 0;
 
 //-----------------------------------------------------------------------------
 //Setup timers
-const double OOBILLION = 1.0 / 1e9;
+//const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
@@ -360,7 +360,7 @@ void init_opengl()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	// initialize_fonts();
+	initialize_fonts();
 }
 
 void normalize2d(Vec v)
@@ -381,7 +381,7 @@ void check_mouse(XEvent *e)
 	//Was a mouse button clicked?
 	static int savex = 0;
 	static int savey = 0;
-	static int ct=0;
+	//static int ct=0;
 	if (e->type != ButtonPress &&
 			e->type != ButtonRelease &&
 			e->type != MotionNotify)
@@ -530,11 +530,14 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_p:
-			powText();
+			//powText();
 			break;
 		case XK_f:
 			break;
 		case XK_s:
+			void zombieKillCount();
+			//extern int zombiesKilled;
+			zombieKillCount();
 			break;
 		case XK_Down:
 			break;
@@ -816,20 +819,24 @@ void physics()
 
 void render()
 {
-    	//printHello(); // Angel wrote this to test his func
+   	//printHello(); // Angel wrote this to test his func
+	//extern int zombiesKilled;
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
+	// DO NOT TRY TO PRINT TEXT ABOVE THIS LINE
 	//
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	// ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
+	void zombieKillCount();
+	zombieKillCount();
+	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
 	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
 	// //
 	// //christy print name
-	// printName();
+	//printName();
 	//-------------
 	//Draw the ship
 	glColor3fv(g.ship.color);
