@@ -12,10 +12,10 @@
 using namespace std;
 
 // Global Variables
-int zombiesKilled = 0;
-int nextLevel = 1;
+static int zombiesKilled = 0;
+static int nextLevel = 1;
 int counter = 0;
-bool Nextlvl = false;
+static bool Nextlvl = false;
 
 void printHello()
 {
@@ -29,6 +29,24 @@ void powText()
     return;
 }
 
+void incrementZombiesKilled()
+{
+	zombiesKilled++;
+	return;	
+}
+
+// DOESNT WORK AS INTENDED yet
+bool changeBoolean(bool input)
+{
+	if (input == true) {
+		input = false;
+	} else {
+		input = true;
+	}
+	cout << input << endl;
+	return input;
+}
+
 void zombieKillCount()
 {
 	extern int zombiesKilled;
@@ -38,7 +56,7 @@ void zombieKillCount()
 	textBox.center = 0;
 	//int zombiesKill = kills;
 	ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count! [ %i]", zombiesKilled);
-	//ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count!!  tester");
+	//ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count! [ %i]", zombiesKilled);
 	//return;
 } 
 

@@ -77,7 +77,8 @@ const float MINIMUM_TIME = 0.1;
 const int ZERO = 0;
 
 //-----------------------------------------------------------------------------
-//Setup timers
+// EXTERNAL variables, and Setup timers
+//
 //const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
@@ -321,7 +322,9 @@ int check_keys(XEvent *e);
 void physics();
 void render();
 void zombieKillCount();
+void incrementZombiesKilled();
 void nextLevel2();
+bool changeBoolean(bool input);
 
 //==========================================================================
 // M A I N
@@ -343,7 +346,7 @@ int main()
 		physics();
 		//Next level check if we kill X number of Zombies
 		if (counter == 11) {
-			Nextlvl = true;
+		    	changeBoolean(Nextlvl);
 			counter = 0;
 		} if (zombiesKilled == 11 && Nextlvl) {
 			//nextLevel2();
@@ -552,7 +555,7 @@ int check_keys(XEvent *e)
 		case XK_p:
 			break;
 		case XK_o:
-			Nextlvl = false;
+			changeBoolean(Nextlvl);
 			render();
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//nextLevel2();
@@ -754,7 +757,8 @@ void physics()
 					// increment a destroyed asteroid
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
-					zombiesKilled++;
+					incrementZombiesKilled();
+					//zombiesKilled++;
 					counter++;
 				}
 				//delete the bullet...
