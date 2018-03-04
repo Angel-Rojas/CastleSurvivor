@@ -83,10 +83,11 @@ const int ZERO = 0;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
-extern int zombiesKilled;
-extern int nextLevel;
+extern int zombies_killed;
+extern int next_level;
+extern int wave_count;
 extern int counter;
-extern bool Nextlvl;
+extern bool Next;
 //-----------------------------------------------------------------------------
 
 class Global {
@@ -322,9 +323,13 @@ int check_keys(XEvent *e);
 void physics();
 void render();
 void zombieKillCount();
+void resetKillCount();
 void incrementZombiesKilled();
+void incrementWave();
+void resetWave();
+void displayWave();
 void nextLevel2();
-bool changeBoolean(bool input);
+bool changeBoolean(bool&);
 
 //==========================================================================
 // M A I N
@@ -346,11 +351,11 @@ int main()
 		physics();
 		//Next level check if we kill X number of Zombies
 		if (counter == 11) {
-		    	changeBoolean(Nextlvl);
+		    	changeBoolean(Next);
 			counter = 0;
-		} if (zombiesKilled == 11 && Nextlvl) {
+		} if (zombies_killed == 11 && Next) {
 			//nextLevel2();
-			//Nextlvl = false;
+			//Next = false;
 			//counter = 0;
 			//glClear(GL_COLOR_BUFFER_BIT);
 			nextLevel2();
@@ -555,10 +560,8 @@ int check_keys(XEvent *e)
 		case XK_p:
 			break;
 		case XK_o:
-			changeBoolean(Nextlvl);
+			changeBoolean(Next);
 			render();
-			//glClear(GL_COLOR_BUFFER_BIT);
-			//nextLevel2();
 			//sleep(1);
 			break;
 		case XK_s:
@@ -758,7 +761,7 @@ void physics()
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
 					incrementZombiesKilled();
-					//zombiesKilled++;
+					//zombies_killed++;
 					counter++;
 				}
 				//delete the bullet...
@@ -847,16 +850,16 @@ void physics()
 
 void render()
 {
-	//extern int zombiesKilled;
 	glClear(GL_COLOR_BUFFER_BIT);
-	// DO NOT TRY TO PRINT TEXT ABOVE THIS LINE
-	//
+	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
 	Rect r;
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	void zombieKillCount();
+	// Lets display our kills and Wave number.
 	zombieKillCount();
+	displayWave();
+	//
 	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
 	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);

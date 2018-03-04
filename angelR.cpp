@@ -12,14 +12,44 @@
 using namespace std;
 
 // Global Variables
-static int zombiesKilled = 0;
-static int nextLevel = 1;
+static int zombies_killed = 0;
+static int next_level = 1;
+static int wave_count = 1;
 int counter = 0;
-static bool Nextlvl = false;
+static bool Next = false;
 
-void printHello()
+// This function will increment the Wave counter.
+void incrementWave()
 {
-    cout << "Hello World!" << endl;
+	wave_count++;
+	return;	
+}
+
+// This function will reset the Wave counter.
+void resetWave()
+{
+	if (wave_count >= 2) {
+		wave_count = 1;
+	} else {
+		wave_count = 1;
+	}
+}
+
+// This function will display the Wave counter.
+void displayWave()
+{
+	Rect text;
+	text.bot = 640;
+	text.left = 10;
+	text.center = 0;
+	//int zombiesKill = kills;
+	ggprint8b(&text, 16, 0x00ffff00, "Current Wave: %i", wave_count);
+}
+
+// This function simply welcomes the player.
+void printWelcome()
+{
+    cout << "Welcome, Player 1" << endl;
     return;
 }
 
@@ -31,41 +61,49 @@ void powText()
 
 void incrementZombiesKilled()
 {
-	zombiesKilled++;
+	zombies_killed++;
 	return;	
 }
 
-// DOESNT WORK AS INTENDED yet
-bool changeBoolean(bool input)
+// Finally works correctly. '&' is important.
+bool changeBoolean(bool &input)
 {
 	if (input == true) {
 		input = false;
 	} else {
 		input = true;
 	}
-	cout << input << endl;
+	//cout << input << endl;
 	return input;
 }
 
 void zombieKillCount()
 {
-	extern int zombiesKilled;
+	extern int zombies_killed;
 	Rect textBox;
 	textBox.bot = 650;
 	textBox.left = 10;
 	textBox.center = 0;
 	//int zombiesKill = kills;
-	ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count! [ %i]", zombiesKilled);
-	//ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count! [ %i]", zombiesKilled);
-	//return;
+	ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count: [ %i]", zombies_killed);
+	//ggprint8b(&textBox, 16, 0x00ffff00, "Zombie Kill Count! [ %i]", zombies_killed);
 } 
+
+void resetKillCount()
+{
+	if (zombies_killed >= 1) {
+		zombies_killed = 0;
+	} else {
+		zombies_killed = 0;
+	}
+}
 
 void nextLevel2()
 {
-	extern int nextlevel; 
+	extern int next_level; 
 	extern int xres, yres;
 	void render();
-	nextLevel = 2;
+	next_level = 2;
 	//Clear screen
 	glClear(GL_COLOR_BUFFER_BIT);
 	Rect text;
@@ -73,22 +111,22 @@ void nextLevel2()
 	text.left = 1250 / 2;
 	text.center = 0;
 	//int zombiesKill = kills;
-	ggprint8b(&text, 16, 0x00ffff00, "NEXT LEVEL: %i", nextLevel);
+	ggprint8b(&text, 16, 0x00ffff00, "NEXT LEVEL: %i", next_level);
 	ggprint8b(&text, 16, 0x00ffff00, "O - Okay");
 	// Wait a second for printed message to be read
 	//sleep(2);
 	//render();
-	nextLevel++;
+	next_level++;
 	//return;
 }
 
 void checkNextLevel()
 {
-	//cout << zombiesKilled << endl;
+	//cout << zombies_killed << endl;
 	if (counter == 5) {
-		Nextlvl = true;
+		Next = true;
 		counter = 0;
-	} if (zombiesKilled == 5 && Nextlvl) {
+	} if (zombies_killed == 5 && Next) {
 		nextLevel2();
 	}
 }

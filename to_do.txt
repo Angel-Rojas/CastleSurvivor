@@ -1,7 +1,7 @@
 >status bar
  	time
 	money
-	wave count
+	--wave count	// Angel did this
 	health bar for castle
 >takeout polygons and make into rectangles
 	make asteroids into zombie objects
