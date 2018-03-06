@@ -12,12 +12,18 @@ using namespace std;
 
 // Define some 'Magic Numbers', or other usable variables
 #define POW  "Pow!"
-#define FULLH  "[====>]"
 #define YOFFSET  31
 #define MOREYOFFSET  41
 #define XOFFSET  150
 #define blue 0xab0000cc
+#define lt_blue 0x3b5998
+#define red 0x00ff0000
 #define yellow 0x00ffff00
+#define FULLH  "[====>]"
+#define THREE4sH  "[===>  ]"
+#define HALFH  "[==>   ]"
+#define QUARTERH  "[=>    ]"
+#define EMPTYH  "[       ]"
 
 // Global Variables
 static int zombie_kills = 0;
@@ -30,7 +36,7 @@ static int State = 0;
 // enumerator of Health Bars.
 enum HealthBar {
 	FULL,
-	THREEFOURTHS,
+	THREE4s,
 	HALF,
 	QUARTER,
 	EMPTY
@@ -56,16 +62,57 @@ void displayHealth(int input,int ypos, int xpos)
 			text.bot = ypos - 20;
 			text.left = xpos / 11;
 			text.center = 0;
-			ggprint8b(&text, 16, yellow, "Health %s", FULLH);
+			ggprint8b(&text, 16, yellow, "Health ");
+			text.bot = ypos - 20;
+			text.left = (xpos / 11) + 40;
+			text.center = 0;
+			ggprint8b(&text, 16, red, "%s", FULLH);
 			break;
-		case THREEFOURTHS:
+		case THREE4s:
+			Rect a;
+			a.bot = ypos - 20;
+			a.left = xpos / 11;
+			a.center = 0;
+			ggprint8b(&a,16,yellow,"Health ");
+			a.bot = ypos - 20;
+			a.left = (xpos / 11) + 40;
+			a.center = 0;
+			ggprint8b(&a, 16, red, "%s", THREE4sH);
 			break;
 		case HALF:
+			Rect b;
+			b.bot = ypos - 20;
+			b.left = xpos / 11;
+			b.center = 0;
+			ggprint8b(&b,16,yellow,"Health ");
+			b.bot = ypos - 20;
+			b.left = (xpos / 11) + 40;
+			b.center = 0;
+			ggprint8b(&b, 16, red, "%s", HALFH);
 			break;
 		case QUARTER:
+			Rect c;
+			c.bot = ypos - 20;
+			c.left = xpos / 11;
+			c.center = 0;
+			ggprint8b(&c,16,yellow,"Health ");
+			c.bot = ypos - 20;
+			c.left = (xpos / 11) + 40;
+			c.center = 0;
+			ggprint8b(&c, 16, red, "%s", QUARTERH);
 			break;
 		case EMPTY:
+			Rect d;
+			d.bot = ypos - 20;
+			d.left = xpos / 11;
+			d.center = 0;
+			ggprint8b(&d,16,yellow,"Health ");
+			d.bot = ypos - 20;
+			d.left = (xpos / 11) + 40;
+			d.center = 0;
+			ggprint8b(&d, 16, red, "%s", EMPTYH);
 			break;
+
 		default: 
 			Rect t;
 			t.bot = 870;
@@ -80,7 +127,7 @@ void playerState(int healthbar, int ypos, int xpos)
 {
 	switch (healthbar) {
         case HITONCE:
-            displayHealth(THREEFOURTHS,ypos,xpos);
+            displayHealth(THREE4s,ypos,xpos);
             break;
         case HITTWICE:
             displayHealth(HALF,ypos,xpos);
@@ -183,8 +230,6 @@ void resetKillCount()
 // 'nextLevel2()' prints the next level to screen.
 void nextLevel2()
 {
-	extern int next_level; 
-	extern int xres, yres;
 	void render();
 	next_level = 2;
 	//Clear screen
@@ -198,7 +243,7 @@ void nextLevel2()
 	// Wait a second for printed message to be read
 	//sleep(2);
 	next_level++;
-	//return;
+	return;
 }
 
 // 'checkNextLevel()' checks to see if next level is imminent.

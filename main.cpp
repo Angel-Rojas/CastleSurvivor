@@ -1,16 +1,15 @@
 //
 // Modified by: Angel Rojas
-// Christy
-// Nygel
-// Abdullah
+// 		Christy G
+// 		Nygel Aton
+// 		Abdullah Aljahdali
+//
 //
 // filename: main.cpp
 // date: Spring 2018
 // purpose: 'Castle Survivor' Group Project
 //
 // X11 OpenGL initial
-//
-//
 //
 //
 //program: asteroids.cpp
@@ -358,10 +357,8 @@ int main()
 		    	changeBoolean(Next);
 			counter = 0;
 		} if (zombie_kills == 11 && Next) {
-			//nextLevel2();
 			//Next = false;
 			//counter = 0;
-			//glClear(GL_COLOR_BUFFER_BIT);
 			nextLevel2();
 		} else {
 			render();
@@ -562,12 +559,15 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_p:
-			//displayHealth(FULL,gl.yres,gl.xres);
+			State = THREE4s;
+			cout << "State changed to " << State << endl;
 			break;
 		case XK_o:
 			changeBoolean(Next);
-			render();
-			//sleep(1);
+			break;
+		case XK_i:
+			break;
+		case XK_u:
 			break;
 		case XK_s:
 			break;
@@ -867,7 +867,7 @@ void render()
 	zombieKillCount(gl.yres);
 	displayWave(gl.yres,10);
 	//
-	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
+	ggprint8b(&r, 16, lt_blue, "Castle Survivor!");
 	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
