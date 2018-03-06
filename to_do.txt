@@ -1,8 +1,8 @@
 >status bar
  	time
 	money
-	--wave count	// Angel did this
-	health bar for castle
+	--wave count			// Angel did this
+	--health bar for castle	// Angel did this
 >takeout polygons and make into rectangles
 	make asteroids into zombie objects
 	need hit box

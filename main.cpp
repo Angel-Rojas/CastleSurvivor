@@ -76,19 +76,21 @@ const float WHOLE_ANGLE = 360.0f;
 const float MINIMUM_TIME = 0.1;
 const int ZERO = 0;
 
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // EXTERNAL variables, and Setup timers
 //
 //const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
-extern int zombies_killed;
+extern int zombie_kills;
 extern int next_level;
 extern int wave_count;
 extern int counter;
 extern bool Next;
-//-----------------------------------------------------------------------------
+extern int State;
+
+//--------------------------------------------------------------------------
 
 class Global {
 public:
@@ -322,14 +324,16 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
-void zombieKillCount();
+void zombieKillCount(int);
 void resetKillCount();
 void incrementZombiesKilled();
 void incrementWave();
 void resetWave();
-void displayWave();
+void displayWave(int,int);
 void nextLevel2();
 bool changeBoolean(bool&);
+void displayHealth(int,int,int);
+void playerState(int,int,int);
 
 //==========================================================================
 // M A I N
@@ -353,7 +357,7 @@ int main()
 		if (counter == 11) {
 		    	changeBoolean(Next);
 			counter = 0;
-		} if (zombies_killed == 11 && Next) {
+		} if (zombie_kills == 11 && Next) {
 			//nextLevel2();
 			//Next = false;
 			//counter = 0;
@@ -558,6 +562,7 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_p:
+			//displayHealth(FULL,gl.yres,gl.xres);
 			break;
 		case XK_o:
 			changeBoolean(Next);
@@ -761,7 +766,7 @@ void physics()
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
 					incrementZombiesKilled();
-					//zombies_killed++;
+					//zombie_kills++;
 					counter++;
 				}
 				//delete the bullet...
@@ -852,13 +857,15 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
+	//displayHealth(FULL,gl.yres,gl.xres);
+	playerState(State,gl.yres,gl.xres);
 	Rect r;
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
 	// Lets display our kills and Wave number.
-	zombieKillCount();
-	displayWave();
+	zombieKillCount(gl.yres);
+	displayWave(gl.yres,10);
 	//
 	ggprint8b(&r, 16, 0x00ff0000, "Castle Survivor!");
 	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
