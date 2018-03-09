@@ -88,6 +88,7 @@ extern int wave_count;
 extern int counter;
 extern bool Next;
 extern int State;
+extern int Game_mode;
 
 //--------------------------------------------------------------------------
 
@@ -342,7 +343,6 @@ int main()
 {
 	// logOpen();
 	init_opengl();
-	State = PLAY;
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
@@ -356,7 +356,7 @@ int main()
 		physics();
 		//Next level check if we kill X number of Zombies
 		if (counter == 11) {
-		    	changeBoolean(Next);
+		    changeBoolean(Next);
 			counter = 0;
 		} if (zombie_kills == 11 && Next) {
 			//Next = false;
@@ -561,21 +561,21 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_p:
-			State = THREE4s;
-			cout << "State changed to " << State << endl;
+			Game_mode = PLAY;
 			break;
 		case XK_o:
 			changeBoolean(Next);
 			break;
 		case XK_i:
 			// Angel testing something
-			State = PLAY;
+			State = THREE4s;
+			cout << "State changed to " << State << endl;
 			break;
 		case XK_u:
-			// Angel testing something
-			State = MENU;
 			break;
-		case XK_s:
+		case XK_m:
+			// Angel testing something
+			Game_mode = MENU;
 			break;
 		case XK_Down:
 			break;
@@ -881,7 +881,8 @@ void render()
 		glEnd();
 		++b;
 		}
-	switch (State) {
+	switch (Game_mode) {
+		// The below case is the MAIN RENDER function
 		case PLAY:
 			//displayHealth(FULL,gl.yres,gl.xres);
 			playerState(State,gl.yres,gl.xres);

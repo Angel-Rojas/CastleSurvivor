@@ -34,6 +34,7 @@ static int wave_count = 1;
 static int counter = 0;
 static bool Next = false;
 static int State = 0;
+static int Game_mode = 0;
 
 // enumerator of Health Bars.
 enum HealthBar {
@@ -45,12 +46,15 @@ enum HealthBar {
 };
 
 // enumerator of Games' States.
-enum GameStates {
+enum HealthStates {
 	HEALTHY,
 	HITONCE,
 	HITTWICE,
 	HITTHRICE,
-	DEAD,
+	DEAD
+};
+
+enum GameMode {
 	MENU,
 	PLAY,
 	CREDITS
@@ -259,9 +263,9 @@ void displayMenu()
 {
 	Rect menu;
 	menu.bot = 400;
-	menu.left = 100;
+	menu.left = 250;
 	menu.center = 0;
-	ggprint8b(&menu, 16, lt_blue, "Game Menu: Press P to play");
+	ggprint8b(&menu, 16, yellow, "Game Menu: Press P to play");
 	return;
 }
 
