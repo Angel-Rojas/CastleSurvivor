@@ -96,10 +96,12 @@ extern int Game_mode;
 class Global {
 public:
 	int xres, yres;
+	long double playTime;
 	char keys[65536];
 	Global() {
 		xres = 1250;
 		yres = 900;
+		playTime = 0.0;
 		memset(keys, ZERO, 65536);
 	}
 } gl;
@@ -337,6 +339,7 @@ bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
 void displayMenu();
+extern void timerN(double);
 
 //==========================================================================
 // M A I N
@@ -348,8 +351,10 @@ int main()
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
+
 	while (!done) {
-		while (x11.getXPending()) {
+		
+	    	while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
 			check_mouse(&e);
@@ -642,7 +647,6 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 	*/
 }
-
 void physics()
 {
 	Flt d0,d1,dist;
@@ -670,7 +674,7 @@ void physics()
 	while (i < g.nbullets) {
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
+	        double ts = timeDiff(&b->time, &bt);
 		if (ts > 2.5) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
@@ -860,11 +864,11 @@ void physics()
 			g.mouseThrustOn = false;
 	}
 }
-
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
+	timerN(0);
 	Bullet *b = &g.barr[0];
 	for (int i=0; i<g.nbullets; i++) {
 		//Log("draw bullet...\n");
@@ -1012,4 +1016,5 @@ void render()
 			displayMenu();
 			break;
 	}
+	
 }
