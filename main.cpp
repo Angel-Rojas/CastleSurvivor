@@ -83,6 +83,7 @@ extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 extern int zombie_kills;
+extern int zombie_pos;
 extern int next_level;
 extern int wave_count;
 extern int counter;
@@ -185,7 +186,8 @@ public:
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
 			}
-			a->pos[ZERO] = (Flt)(rand() % gl.xres);
+			initZombiePosition(gl.xres);
+			a->pos[ZERO] = zombie_pos;
 			a->pos[1] = (Flt)(rand() % gl.yres);
 			a->pos[2] = 0.0f;
 			a->angle = 0.0;

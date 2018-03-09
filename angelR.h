@@ -7,6 +7,7 @@
 #define _ANGEL_FUNCS_
 void printWelcome();
 void zombieKillCount();
+float initZombiePosition(int);
 void nextLevel2();
 
 

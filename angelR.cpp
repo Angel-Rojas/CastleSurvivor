@@ -29,6 +29,7 @@ using namespace std;
 
 // Global Variables
 static int zombie_kills = 0;
+static int zombie_pos = 0;
 static int next_level = 1;
 static int wave_count = 1;
 static int counter = 0;
@@ -262,10 +263,15 @@ void checkNextLevel()
 void displayMenu()
 {
 	Rect menu;
-	menu.bot = 400;
-	menu.left = 250;
+	menu.bot = 550;
+	menu.left = 550;
 	menu.center = 0;
 	ggprint8b(&menu, 16, yellow, "Game Menu: Press P to play");
 	return;
 }
 
+float initZombiePosition(int input)
+{
+	zombie_pos = input - 10;
+	return zombie_pos;
+}
