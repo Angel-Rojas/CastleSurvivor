@@ -342,6 +342,7 @@ int main()
 {
 	// logOpen();
 	init_opengl();
+	State = PLAY;
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
