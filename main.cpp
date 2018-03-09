@@ -28,8 +28,8 @@ using namespace std;
 #include <unistd.h>
 #include <X11/Xlib.h>
 //#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 // #include "log.h"
@@ -898,6 +898,20 @@ void render()
 		// The below case is the MAIN RENDER function
 		case PLAY:
 			//displayHealth(FULL,gl.yres,gl.xres);
+			//------------christy header------
+			void header(int , int, int, int);
+			//
+			header(gl.xres, gl.yres, gl.xres, gl.yres);
+			//-------------christy timer-----
+			double timer();
+			//
+			timer();
+			//----------- christy printname---
+			void printName();
+			//
+			printName();
+			//-------------------------------
+			
 			playerState(State,gl.yres,gl.xres);
 			Rect r;
 			r.bot = gl.yres - 20;
