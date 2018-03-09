@@ -24,12 +24,14 @@ using namespace std;
 #define HALFH  "[==>   ]"
 #define QUARTERH  "[=>    ]"
 #define EMPTYH  "[       ]"
+#define HEALTHOFFSET  40
+#define HEALTHPOS  11
 
 // Global Variables
 static int zombie_kills = 0;
 static int next_level = 1;
 static int wave_count = 1;
-int counter = 0;
+static int counter = 0;
 static bool Next = false;
 static int State = 0;
 
@@ -48,9 +50,11 @@ enum GameStates {
 	HITONCE,
 	HITTWICE,
 	HITTHRICE,
-	DEAD
+	DEAD,
+	MENU,
+	PLAY,
+	CREDITS
 };
-
 
 // Function that actually displays player health bar.
 void displayHealth(int input,int ypos, int xpos)
@@ -60,55 +64,55 @@ void displayHealth(int input,int ypos, int xpos)
 		case FULL:
 			Rect text;
 			text.bot = ypos - 20;
-			text.left = xpos / 11;
+			text.left = xpos / HEALTHPOS;
 			text.center = 0;
 			ggprint8b(&text, 16, yellow, "Health ");
 			text.bot = ypos - 20;
-			text.left = (xpos / 11) + 40;
+			text.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			text.center = 0;
 			ggprint8b(&text, 16, red, "%s", FULLH);
 			break;
 		case THREE4s:
 			Rect a;
 			a.bot = ypos - 20;
-			a.left = xpos / 11;
+			a.left = xpos / HEALTHPOS;
 			a.center = 0;
 			ggprint8b(&a,16,yellow,"Health ");
 			a.bot = ypos - 20;
-			a.left = (xpos / 11) + 40;
+			a.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			a.center = 0;
 			ggprint8b(&a, 16, red, "%s", THREE4sH);
 			break;
 		case HALF:
 			Rect b;
 			b.bot = ypos - 20;
-			b.left = xpos / 11;
+			b.left = xpos / HEALTHPOS;
 			b.center = 0;
 			ggprint8b(&b,16,yellow,"Health ");
 			b.bot = ypos - 20;
-			b.left = (xpos / 11) + 40;
+			b.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			b.center = 0;
 			ggprint8b(&b, 16, red, "%s", HALFH);
 			break;
 		case QUARTER:
 			Rect c;
 			c.bot = ypos - 20;
-			c.left = xpos / 11;
+			c.left = xpos / HEALTHPOS;
 			c.center = 0;
 			ggprint8b(&c,16,yellow,"Health ");
 			c.bot = ypos - 20;
-			c.left = (xpos / 11) + 40;
+			c.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			c.center = 0;
 			ggprint8b(&c, 16, red, "%s", QUARTERH);
 			break;
 		case EMPTY:
 			Rect d;
 			d.bot = ypos - 20;
-			d.left = xpos / 11;
+			d.left = xpos / HEALTHPOS;
 			d.center = 0;
 			ggprint8b(&d,16,yellow,"Health ");
 			d.bot = ypos - 20;
-			d.left = (xpos / 11) + 40;
+			d.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			d.center = 0;
 			ggprint8b(&d, 16, red, "%s", EMPTYH);
 			break;
@@ -144,14 +148,12 @@ void playerState(int healthbar, int ypos, int xpos)
     }
 }
 
-// This function will increment the Wave counter.
 void incrementWave()
 {
 	wave_count++;
 	return;	
 }
 
-// This function will reset the Wave counter.
 void resetWave()
 {
 	if (wave_count >= 2) {
@@ -172,21 +174,18 @@ void displayWave(int ypos, int xpos)
 	ggprint8b(&text, 16, yellow, "Current Wave: %i", wave_count);
 }
 
-// This function simply welcomes the player.
 void printWelcome()
 {
     cout << "Welcome, Player 1" << endl;
     return;
 }
 
-// This function prints out a statement each time you fire.
 void powText()
 {
     cout << POW << endl;
     return;
 }
 
-// A function called from anywhere to incr. zombie kill count.
 void incrementZombiesKilled()
 {
 	zombie_kills++;
@@ -232,7 +231,6 @@ void nextLevel2()
 {
 	void render();
 	next_level = 2;
-	//Clear screen
 	glClear(GL_COLOR_BUFFER_BIT);
 	Rect text;
 	text.bot = 900 / 2;
@@ -256,3 +254,14 @@ void checkNextLevel()
 		nextLevel2();
 	}
 }
+
+void displayMenu()
+{
+	Rect menu;
+	menu.bot = 400;
+	menu.left = 100;
+	menu.center = 0;
+	ggprint8b(&menu, 16, lt_blue, "Game Menu: Press P to play");
+	return;
+}
+

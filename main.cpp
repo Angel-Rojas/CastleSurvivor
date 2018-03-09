@@ -333,6 +333,7 @@ void nextLevel2();
 bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
+void displayMenu();
 
 //==========================================================================
 // M A I N
@@ -566,8 +567,12 @@ int check_keys(XEvent *e)
 			changeBoolean(Next);
 			break;
 		case XK_i:
+			// Angel testing something
+			State = PLAY;
 			break;
 		case XK_u:
+			// Angel testing something
+			State = MENU;
 			break;
 		case XK_s:
 			break;
@@ -857,91 +862,6 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
-	//displayHealth(FULL,gl.yres,gl.xres);
-	playerState(State,gl.yres,gl.xres);
-	Rect r;
-	r.bot = gl.yres - 20;
-	r.left = 10;
-	r.center = 0;
-	// Lets display our kills and Wave number.
-	zombieKillCount(gl.yres);
-	displayWave(gl.yres,10);
-	//
-	ggprint8b(&r, 16, lt_blue, "Castle Survivor!");
-	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
-	// //
-	// //christy print name
-	//printName();
-	//-------------
-	//Draw the ship
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
-	glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
-	glBegin(GL_TRIANGLES);
-		glVertex2f(-12.0f, -10.0f);
-		glVertex2f(  0.0f, 20.0f);
-		glVertex2f(  0.0f, -6.0f);
-		glVertex2f(  0.0f, -6.0f);
-		glVertex2f(  0.0f, 20.0f);
-		glVertex2f( 12.0f, -10.0f);
-	glEnd();
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-		glVertex2f(0.0f, 0.0f);
-	glEnd();
-	glPopMatrix();
-	if (gl.keys[XK_Up] || g.mouseThrustOn) {
-		int i;
-		//draw thrust
-		Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		Flt xs,ys,xe,ye,r;
-		glBegin(GL_LINES);
-			for (i=0; i<16; i++) {
-				xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-				ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-				r = rnd()*40.0+40.0;
-				xe = -xdir * r + rnd() * 18.0 - 9.0;
-				ye = -ydir * r + rnd() * 18.0 - 9.0;
-				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-				glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
-				glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
-			}
-		glEnd();
-	}
-	//------------------
-	//Draw the asteroids
-	{
-		Asteroid *a = g.ahead;
-		while (a) {
-			//Log("draw asteroid...\n");
-			glColor3fv(a->color);
-			glPushMatrix();
-			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			// change from LINE_LOOP to POLYGON to fill color
-			glBegin(GL_POLYGON);
-				//Log("%i verts\n",a->nverts);
-				for (int j=0; j<a->nverts; j++) {
-					glVertex2f(a->vert[j][0], a->vert[j][1]);
-				}
-			glEnd();
-			glPopMatrix();
-			glColor3f(1.0f, 0.0f, 0.0f);
-			// below is where the Red Center Dot is made
-			//glBegin(GL_POLYGON);
-			//	glVertex2f(a->pos[0], a->pos[1]);
-			glEnd();
-			a = a->next;
-		}
-	}
-	//----------------
-	//Draw the bullets
 	Bullet *b = &g.barr[0];
 	for (int i=0; i<g.nbullets; i++) {
 		//Log("draw bullet...\n");
@@ -959,5 +879,133 @@ void render()
 			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 		++b;
+		}
+	switch (State) {
+		case PLAY:
+			//displayHealth(FULL,gl.yres,gl.xres);
+			playerState(State,gl.yres,gl.xres);
+			Rect r;
+			r.bot = gl.yres - 20;
+			r.left = 10;
+			r.center = 0;
+			// Lets display our kills and Wave number.
+			zombieKillCount(gl.yres);
+			displayWave(gl.yres,10);
+			//
+			ggprint8b(&r, 16, lt_blue, "Castle Survivor!");
+			// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
+			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
+			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
+			// //
+			// //christy print name
+			//printName();
+			//-------------
+			//Draw the ship
+			glColor3fv(g.ship.color);
+			glPushMatrix();
+			glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+			glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_TRIANGLES);
+				glVertex2f(-12.0f, -10.0f);
+				glVertex2f(  0.0f, 20.0f);
+				glVertex2f(  0.0f, -6.0f);
+				glVertex2f(  0.0f, -6.0f);
+				glVertex2f(  0.0f, 20.0f);
+				glVertex2f( 12.0f, -10.0f);
+			glEnd();
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glBegin(GL_POINTS);
+				glVertex2f(0.0f, 0.0f);
+			glEnd();
+			glPopMatrix();
+			if (gl.keys[XK_Up] || g.mouseThrustOn) {
+				int i;
+				//draw thrust
+				Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+				//convert angle to a vector
+				Flt xdir = cos(rad);
+				Flt ydir = sin(rad);
+				Flt xs,ys,xe,ye,r;
+				glBegin(GL_LINES);
+					for (i=0; i<16; i++) {
+						xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+						ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+						r = rnd()*40.0+40.0;
+						xe = -xdir * r + rnd() * 18.0 - 9.0;
+						ye = -ydir * r + rnd() * 18.0 - 9.0;
+						glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
+						glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
+						glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
+					}
+				glEnd();
+			}
+			//------------------
+			//Draw the asteroids
+			{
+				Asteroid *a = g.ahead;
+				while (a) {
+					//Log("draw asteroid...\n");
+					glColor3fv(a->color);
+					glPushMatrix();
+					glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+					glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+					// change from LINE_LOOP to POLYGON to fill color
+					glBegin(GL_POLYGON);
+						//Log("%i verts\n",a->nverts);
+						for (int j=0; j<a->nverts; j++) {
+							glVertex2f(a->vert[j][0], a->vert[j][1]);
+						}
+					glEnd();
+					glPopMatrix();
+					glColor3f(1.0f, 0.0f, 0.0f);
+					// below is where the Red Center Dot is made
+					//glBegin(GL_POLYGON);
+					//	glVertex2f(a->pos[0], a->pos[1]);
+					glEnd();
+					a = a->next;
+				}
+			}
+			//----------------
+			//Draw the bullets
+			/*Bullet *b = &g.barr[0];
+			for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 1.0);
+				glBegin(GL_POINTS);
+					glVertex2f(b->pos[0],      b->pos[1]);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+					glColor3f(0.8, 0.8, 0.8);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+				}*/
+			break;
+		case MENU:
+			/*Bullet *b = &g.barr[0];
+			for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 1.0);
+				glBegin(GL_POINTS);
+					glVertex2f(b->pos[0],      b->pos[1]);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+					glColor3f(0.8, 0.8, 0.8);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+				} */
+			displayMenu();
+			break;
 	}
 }
