@@ -40,6 +40,7 @@ void timerN (double ts)
     r.bot = 500;
     r.left = 80;
     r.center = 0;
+    ggprint8b(&r, 16, 0x00ff0000,"Nygel");
     ggprint8b(&r, 16, 0x00ff0000,"TIME : %lf",(randomMath()));
     ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",(timeLeft-randomMath()));
 }
