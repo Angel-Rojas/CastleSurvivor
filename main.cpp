@@ -1,8 +1,8 @@
 //
 // Modified by: Angel Rojas
-// 		Christy G
-// 		Nygel Aton
-// 		Abdullah Aljahdali
+//		Christy G
+//		Nygel Aton
+//		Abdullah Aljahdali
 //
 //
 // filename: main.cpp
@@ -96,10 +96,12 @@ extern int Game_mode;
 class Global {
 public:
 	int xres, yres;
+	long double playTime;
 	char keys[65536];
 	Global() {
 		xres = 1250;
 		yres = 900;
+		playTime = 0.0;
 		memset(keys, ZERO, 65536);
 	}
 } gl;
@@ -337,6 +339,7 @@ bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
 void displayMenu();
+extern void timerN(double);
 
 //==========================================================================
 // M A I N
@@ -348,8 +351,10 @@ int main()
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
+
 	while (!done) {
-		while (x11.getXPending()) {
+		
+	    	while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
 			check_mouse(&e);
@@ -358,7 +363,7 @@ int main()
 		physics();
 		//Next level check if we kill X number of Zombies
 		if (counter == 11) {
-		    changeBoolean(Next);
+			changeBoolean(Next);
 			counter = 0;
 		} if (zombie_kills == 11 && Next) {
 			//Next = false;
@@ -429,31 +434,38 @@ void check_mouse(XEvent *e)
 			struct timespec bt;
 			clock_gettime(CLOCK_REALTIME, &bt);
 			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > MINIMUM_TIME) {
-				timeCopy(&g.bulletTimer, &bt);
-				//shoot a bullet...
-				if (g.nbullets < MAX_BULLETS) {
-					Bullet *b = &g.barr[g.nbullets];
-					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
-					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
-					b->vel[1] = g.ship.vel[1];
-					//convert ship angle to radians
-					Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = cos(rad);
-					Flt ydir = sin(rad);
-					b->pos[0] += xdir*20.0f;
-					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
-					b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
-					b->color[0] = 1.0f;
-					b->color[1] = 1.0f;
-					b->color[2] = 1.0f;
-					++g.nbullets;
-				}
-			}
+			//switch (Game_mode) {
+			//	case PLAY:
+					if (ts > MINIMUM_TIME) {
+						timeCopy(&g.bulletTimer, &bt);
+						//shoot a bullet...
+						if (g.nbullets < MAX_BULLETS) {
+							Bullet *b = &g.barr[g.nbullets];
+							timeCopy(&b->time, &bt);
+							b->pos[0] = g.ship.pos[0];
+							b->pos[1] = g.ship.pos[1];
+							b->vel[0] = g.ship.vel[0];
+							b->vel[1] = g.ship.vel[1];
+							//convert ship angle to radians
+							Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+							//convert angle to a vector
+							Flt xdir = cos(rad);
+							Flt ydir = sin(rad);
+							b->pos[0] += xdir*20.0f;
+							b->pos[1] += ydir*20.0f;
+							b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
+							b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
+							b->color[0] = 1.0f;
+							b->color[1] = 1.0f;
+							b->color[2] = 1.0f;
+							++g.nbullets;
+						}
+					}
+			//		break;
+			//	case MENU:
+			//		break;
+			// End of switch statement
+			//}
 		}
 			struct timespec bt;
 			clock_gettime(CLOCK_REALTIME, &bt);
@@ -488,47 +500,47 @@ void check_mouse(XEvent *e)
 		}
 	} // end of ButtonPress
 	// if (e->type == MotionNotify) {
-	// 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-	// 		//Mouse moved
-	// 		int xdiff = savex - e->xbutton.x;
-	// 		int ydiff = savey - e->xbutton.y;
-	// 		if (++ct < 10)
-	// 			return;
-	// 		if (xdiff > 0) {
-	// 			//mouse moved along the x-axis.
-	// 			g.ship.angle += 0.05f * (float)xdiff;
-	// 			if (g.ship.angle >= 360.0f)
-	// 				g.ship.angle -= 360.0f;
-	// 		}
-	// 		else if (xdiff < 0) {
-	// 			g.ship.angle += 0.05f * (float)xdiff;
-	// 			if (g.ship.angle < 0.0f)
-	// 				g.ship.angle += 360.0f;
-	// 		}
-	// 		if (ydiff > 0) {
-	// 			//mouse moved along the y-axis.
-	// 			//apply thrust
-	// 			//convert ship angle to radians
-	// 			Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-	// 			//convert angle to a vector
-	// 			Flt xdir = cos(rad);
-	// 			Flt ydir = sin(rad);
-	// 			g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
-	// 			g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
-	// 			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-	// 				g.ship.vel[1]*g.ship.vel[1])/100;
-	// 			if (speed > 15.0f) {
-	// 				speed = 15.0f;
-	// 				normalize2d(g.ship.vel);
-	// 				g.ship.vel[0] *= speed;
-	// 				g.ship.vel[1] *= speed;
-	// 			}
-	// 			g.mouseThrustOn = true;
-	// 			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-	// 		}
-	// 		// x11.set_mouse_position(100, 100);
-	// 		// savex = savey = 100;
-	// 	}
+	//	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	//		//Mouse moved
+	//		int xdiff = savex - e->xbutton.x;
+	//		int ydiff = savey - e->xbutton.y;
+	//		if (++ct < 10)
+	//			return;
+	//		if (xdiff > 0) {
+	//			//mouse moved along the x-axis.
+	//			g.ship.angle += 0.05f * (float)xdiff;
+	//			if (g.ship.angle >= 360.0f)
+	//				g.ship.angle -= 360.0f;
+	//		}
+	//		else if (xdiff < 0) {
+	//			g.ship.angle += 0.05f * (float)xdiff;
+	//			if (g.ship.angle < 0.0f)
+	//				g.ship.angle += 360.0f;
+	//		}
+	//		if (ydiff > 0) {
+	//			//mouse moved along the y-axis.
+	//			//apply thrust
+	//			//convert ship angle to radians
+	//			Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+	//			//convert angle to a vector
+	//			Flt xdir = cos(rad);
+	//			Flt ydir = sin(rad);
+	//			g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
+	//			g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
+	//			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+	//				g.ship.vel[1]*g.ship.vel[1])/100;
+	//			if (speed > 15.0f) {
+	//				speed = 15.0f;
+	//				normalize2d(g.ship.vel);
+	//				g.ship.vel[0] *= speed;
+	//				g.ship.vel[1] *= speed;
+	//			}
+	//			g.mouseThrustOn = true;
+	//			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+	//		}
+	//		// x11.set_mouse_position(100, 100);
+	//		// savex = savey = 100;
+	//	}
 	// }
 
 	if (e->type == MotionNotify) {
@@ -642,7 +654,6 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 	*/
 }
-
 void physics()
 {
 	Flt d0,d1,dist;
@@ -651,16 +662,16 @@ void physics()
 	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	// if (g.ship.pos[0] < 0.0) {
-	// 	g.ship.pos[0] += (float)gl.xres;
+	//	g.ship.pos[0] += (float)gl.xres;
 	// }
 	// else if (g.ship.pos[0] > (float)gl.xres) {
-	// 	g.ship.pos[0] -= (float)gl.xres;
+	//	g.ship.pos[0] -= (float)gl.xres;
 	// }
 	// else if (g.ship.pos[1] < 0.0) {
-	// 	g.ship.pos[1] += (float)gl.yres;
+	//	g.ship.pos[1] += (float)gl.yres;
 	// }
 	// else if (g.ship.pos[1] > (float)gl.yres) {
-	// 	g.ship.pos[1] -= (float)gl.yres;
+	//	g.ship.pos[1] -= (float)gl.yres;
 	// }
 	//
 	//Update bullet positions
@@ -670,7 +681,7 @@ void physics()
 	while (i < g.nbullets) {
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
+	        double ts = timeDiff(&b->time, &bt);
 		if (ts > 2.5) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
@@ -701,7 +712,7 @@ void physics()
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
 	while (a) {
-	    	/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
+			/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 		a->pos[0] += a->vel[0];
 		//a->pos[1] += a->vel[1];
 		//Check for collision with window edges
@@ -742,10 +753,10 @@ void physics()
 				// Increment asteroids destroyed
 				g.nastdestroyed++;
 
-			    	if (a->radius > MINIMUM_ASTEROID_SIZE) {
+					if (a->radius > MINIMUM_ASTEROID_SIZE) {
 					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
 					 * LITTLER OBJECTS
-				    	//break it into pieces.
+						//break it into pieces.
 					Asteroid *ta = a;
 					//buildAsteroidFragment(ta, a);
 					int r = rand()%10+5;
@@ -860,11 +871,11 @@ void physics()
 			g.mouseThrustOn = false;
 	}
 }
-
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
+	timerN(0);
 	Bullet *b = &g.barr[0];
 	for (int i=0; i<g.nbullets; i++) {
 		//Log("draw bullet...\n");
@@ -1003,6 +1014,7 @@ void render()
 				glEnd();
 				++b;
 				}*/
+			angelsTimer(gl.xres,gl.yres);
 			break;
 		case MENU:
 			/*Bullet *b = &g.barr[0];
@@ -1026,4 +1038,5 @@ void render()
 			displayMenu();
 			break;
 	}
+	
 }

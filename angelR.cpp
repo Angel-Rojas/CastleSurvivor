@@ -8,6 +8,8 @@
 #include "Common.h"
 #include "angelR.h"
 #include "fonts.h"
+#include "time.h"
+#include <ctime>
 using namespace std;
 
 // Define some 'Magic Numbers', or other usable variables
@@ -36,6 +38,7 @@ static int counter = 0;
 static bool Next = false;
 static int State = 0;
 static int Game_mode = 0;
+static double my_timer = 0.0;
 
 // enumerator of Health Bars.
 enum HealthBar {
@@ -275,3 +278,68 @@ float initZombiePosition(int input)
 	zombie_pos = input - 10;
 	return zombie_pos;
 }
+
+// Lab 7 timer function for timing another function.
+double angelsTimer(int inputx, int inputy)
+{
+	//timeCopy(&g.bulletTimer, &bt);
+
+	extern double timeDiff(struct timespec *start, struct timespec *end);
+	extern void timeCopy(struct timespec *dest, struct timespec *source);
+	struct timespec ftimeStart, ftimeEnd;
+	clock_gettime(CLOCK_REALTIME,&ftimeStart);
+	int a = 200, b = 300, c = 400;
+	for (int i = 0; i < 10; i++) {
+		b = (a&15) - (b&7) - (c&3);
+		c = (b&31) - (a&7) - (c&3);
+	}
+	clock_gettime(CLOCK_REALTIME, &ftimeEnd);
+	my_timer += timeDiff(&ftimeStart, &ftimeEnd);
+	void timerBox(int,int);
+	timerBox(inputx,inputy);
+    	Rect z;
+	z.bot = inputy-34; //50
+	z.left = inputx-160; //50
+	z.center = 0;
+	ggprint8b(&z, 16, yellow, "ANGEL: ");
+	z.bot = inputy-34; //50
+	z.left = inputx-85; // 100
+	z.center = 0;
+	ggprint8b(&z, 16, yellow, "%lf", my_timer); 
+	return my_timer;
+}
+
+void timerBox(int x,int y)
+{
+	static float angle = 0.0;
+	// red grn blu
+	// 1, 100, 200 gives a nice blue
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	glTranslatef( x-175,y - 40,0);
+		//angle = angle + 2.5;
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	//glTranslatef(-50, -50, 0);
+		//angle = angle + 2.5;
+	
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	
+    	//cout << x << " " << y << " ";
+	Rect p;
+	p.bot = y/2;
+	p.left = x/2;
+	p.center = 1;
+	ggprint8b(&p, 16, yellow, "testing: ");
+	p.bot = y-50;
+	p.left = x-200;
+	p.center = 1;
+	ggprint8b(&p, 16, yellow, "%lf", my_timer);
+	glPopMatrix();
+}
+
