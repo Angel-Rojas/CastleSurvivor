@@ -37,12 +37,12 @@ using namespace std;
 
 // These lines were 'merged' from Abdullah's original main.cpp file
 #include "Common.h"
-#include "angelR.cpp"
+//#include "angelR.cpp"
 #include "angelR.h"
-#include "nygelA.cpp"
+//#include "nygelA.cpp"
 #include "nygelA.h"
 //#include "abdullahA.h"
-#include "christy.cpp"
+//#include "christy.cpp"
 #include "christy.h"
 
 
@@ -61,40 +61,52 @@ typedef Flt	Matrix[4][4];
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
 						(c)[1]=(a)[1]-(b)[1]; \
 						(c)[2]=(a)[2]-(b)[2]
+
+
 //constants
 //const float TIMESLICE = 1.0f;
 //const float GRAVITY = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-const int MAX_BULLETS = 11;
-const Flt MINIMUM_ASTEROID_SIZE = 60.0;
+#define red 0x00ff0000
 
 //commonly used 'magic numbers'
 const float RIGHT_ANGLE = 90.0;
 const float WHOLE_ANGLE = 360.0f;
 const float MINIMUM_TIME = 0.1;
 const int ZERO = 0;
+const int MAX_BULLETS = 11;
+const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // EXTERNAL variables, and Setup timers
 //
 //const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
-extern int zombie_kills;
 extern int zombie_pos;
 extern int next_level;
 extern int wave_count;
-extern int counter;
-extern bool Next;
-extern int State;
-extern int Game_mode;
+extern string POW;
+extern int YOFFSET; 
+extern int MOREYOFFSET; 
+extern int XOFFSET;
+extern string FULLH;
+extern string THREE4sH;
+extern string HALFH;
+extern string QUARTERH;
+extern string EMPTYH;
+extern int HEALTHOFFSET;
+extern int HEALTHPOS;
+extern int HALVED;
 
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 class Global {
 public:
+	int Game_mode, State, counter, zombie_kills;// zombie_pos;
+	bool Next;
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
@@ -188,7 +200,7 @@ public:
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
 			}
-			initZombiePosition(gl.xres);
+			initZombiePosition(gl.xres,zombie_pos);
 			a->pos[ZERO] = zombie_pos;
 			a->pos[1] = (Flt)(rand() % gl.yres);
 			a->pos[2] = 0.0f;
@@ -328,9 +340,7 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
-void zombieKillCount(int);
 void resetKillCount();
-void incrementZombiesKilled();
 void incrementWave();
 void resetWave();
 void displayWave(int,int);
@@ -339,6 +349,14 @@ void displayHealth(int,int,int);
 void playerState(int,int,int);
 extern void timerN(double);
 double timer();
+void powText();
+void printWelcome();
+float initZombiePosition(int,int&);
+double angelsTimer(int,int);
+void timerBox(int,int);
+void displayMenu(int,int);
+void pauseGame(int,int);
+void endGameScreen();
 
 //=========================================================================
 // M A I N
@@ -361,14 +379,16 @@ int main()
 		}
 		physics();
 		// Check to see if end of game (max zombies killed)
-		if (counter == 11) {
-			changeBoolean(Next);
-			counter = 0;
-		} if (zombie_kills == 11 && Next) {
+		/*if (gl.counter == 5) {
+			changeBoolean(gl.Next);
+			cout << gl.Next << endl;
+			gl.counter = 0;
+		} if (gl.zombie_kills == 5 && gl.Next == 1) {
 			endGameScreen();
-		} else {
+			cout << "inside ending " << gl.Next << endl;
+		} else {*/
 			render();
-		}
+		//}
 		x11.swapBuffers();
 	}
 	// cleanup_fonts();
@@ -565,18 +585,20 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_space:
-			Game_mode = PAUSED;
+			gl.Game_mode = 2;
 			break;
 		case XK_p:
-			Game_mode = PLAY;
+			gl.Game_mode = 1;
 			break;
 		case XK_o:
-			endTheGame();
+			endTheGame(gl.zombie_kills);
 			break;
 		case XK_i:
 			// Angel testing something
-			State = THREE4s;
-			cout << "State(health) changed to 3/4s" << endl;
+			//State = THREE4s;
+			statePlayerDead(gl.State);
+			//gl.State = 1;
+			//cout << "State(health) changed to 3/4s" << gl.State << endl;
 			break;
 		case XK_u:
 			break;
@@ -704,10 +726,10 @@ void physics()
 	//
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
-	switch (Game_mode) {
-		case MENU:
+	switch (gl.Game_mode) {
+		case 0:
 			break;
-		case PLAY:
+		case 1:
 			while (a) {
 				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 				a->pos[0] += a->vel[0];
@@ -730,7 +752,7 @@ void physics()
 				a = a->next;
 			}//end of while
 			break;
-		case PAUSED:
+		case 2:
 			break;
 	// end of Switch
 	}
@@ -784,9 +806,8 @@ void physics()
 					// increment a destroyed asteroid
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
-					incrementZombiesKilled();
-					//zombie_kills++;
-					counter++;
+					incrementZombiesKilled(gl.zombie_kills);
+					gl.counter++;
 				}
 				//delete the bullet...
 				memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
@@ -893,9 +914,9 @@ void render()
 		glEnd();
 		++b;
 		}
-	switch (Game_mode) {
+	switch (gl.Game_mode) {
 		// The below case is the MAIN RENDER function
-		case PLAY:
+		case 1:
 			// nygel timer
 			timerN(0);
 			//------------christy header------
@@ -911,13 +932,13 @@ void render()
 			printName();
 			//-------------------------------
 			
-			playerState(State,gl.yres,gl.xres);
+			playerState(gl.State,gl.yres,gl.xres);
 			Rect r;
 			r.bot = gl.yres - 20;
 			r.left = 10;
 			r.center = 0;
 			// Lets display our kills and Wave number.
-			zombieKillCount(gl.yres);
+			zombieKillCount(gl.yres,gl.zombie_kills);
 			displayWave(gl.yres,10);
 			//
 			ggprint8b(&r, 16, red, "Castle Survivor!");
@@ -1012,7 +1033,7 @@ void render()
 				}*/
 			angelsTimer(gl.xres,gl.yres);
 			break;
-		case MENU:
+		case 0:
 			/*Bullet *b = &g.barr[0];
 			for (int i=0; i<g.nbullets; i++) {
 				//Log("draw bullet...\n");
@@ -1033,7 +1054,7 @@ void render()
 				} */
 			displayMenu(gl.yres, gl.xres);
 			break;
-		case PAUSED:
+		case 2:
 			pauseGame(gl.xres, gl.yres);
 			break;
 	}

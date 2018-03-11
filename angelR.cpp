@@ -10,29 +10,30 @@
 #include "fonts.h"
 #include "time.h"
 #include <ctime>
+#include <string>
 using namespace std;
 
 // Define some 'Magic Numbers', or other usable variables
-#define POW  "Pow!"
-#define YOFFSET  31
-#define MOREYOFFSET  41
-#define XOFFSET  150
+static string POW = "Pow!";
+static int YOFFSET = 31;
+static int MOREYOFFSET = 41;
+static int XOFFSET = 50;
+static string FULLH = "[====>]";
+static string THREE4sH = "[===>  ]";
+static string HALFH = "[==>   ]";
+static string QUARTERH = "[=>    ]";
+static string EMPTYH = "[       ]";
+static int HEALTHOFFSET = 40;
+static int HEALTHPOS = 11;
+static int HALVED = 2;
 #define blue 0x3b5998
 #define lt_blue 0x87cefa
 #define red 0x00ff0000
 #define yellow 0x00ffff00
-#define FULLH  "[====>]"
-#define THREE4sH  "[===>  ]"
-#define HALFH  "[==>   ]"
-#define QUARTERH  "[=>    ]"
-#define EMPTYH  "[       ]"
-#define HEALTHOFFSET  40
-#define HEALTHPOS  11
-#define HALVED  2
 
 // Global Variables
 static int zombie_kills = 0;
-static int zombie_pos = 0;
+int zombie_pos = 0;
 static int next_level = 1;
 static int wave_count = 1;
 static int counter = 0;
@@ -43,35 +44,37 @@ static double my_timer = 0.0;
 
 // enumerator of Health Bars.
 enum HealthBar {
-	FULL,
-	THREE4s,
-	HALF,
-	QUARTER,
-	EMPTY
+	FULL=0,
+	THREE4s=1,
+	HALF=2,
+	QUARTER=3,
+	EMPTY=4
 };
 
 // enumerator of Games' States.
 enum HealthStates {
-	HEALTHY,
-	HITONCE,
-	HITTWICE,
-	HITTHRICE,
-	DEAD
+	HEALTHY=0,
+	HITONCE=1,
+	HITTWICE=2,
+	HITTHRICE=3,
+	DEAD=4
 };
 
 enum GameMode {
-	MENU,
-	PLAY,
-	PAUSED,
-	CREDITS
+	MENU=0,
+	PLAY=1,
+	PAUSED=2,
+	CREDITS=3
 };
 
 // Function that actually displays player health bar.
 void displayHealth(int input,int ypos, int xpos)
 {
 	int Meter = input;
+	State++;
 	switch (Meter) {
-		case FULL:
+		//case FULL:
+		case 0:
 			Rect text;
 			text.bot = ypos - 20;
 			text.left = xpos / HEALTHPOS;
@@ -80,9 +83,10 @@ void displayHealth(int input,int ypos, int xpos)
 			text.bot = ypos - 20;
 			text.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			text.center = 0;
-			ggprint8b(&text, 16, red, "%s", FULLH);
+			ggprint8b(&text, 16, red, "%s", &FULLH);
 			break;
-		case THREE4s:
+		//case THREE4s:
+		case 1:
 			Rect a;
 			a.bot = ypos - 20;
 			a.left = xpos / HEALTHPOS;
@@ -91,9 +95,10 @@ void displayHealth(int input,int ypos, int xpos)
 			a.bot = ypos - 20;
 			a.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			a.center = 0;
-			ggprint8b(&a, 16, red, "%s", THREE4sH);
+			ggprint8b(&a, 16, red, "%s", &THREE4sH);
 			break;
-		case HALF:
+		//case HALF:
+		case 2:
 			Rect b;
 			b.bot = ypos - 20;
 			b.left = xpos / HEALTHPOS;
@@ -102,9 +107,10 @@ void displayHealth(int input,int ypos, int xpos)
 			b.bot = ypos - 20;
 			b.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			b.center = 0;
-			ggprint8b(&b, 16, red, "%s", HALFH);
+			ggprint8b(&b, 16, red, "%s", &HALFH);
 			break;
-		case QUARTER:
+		//case QUARTER:
+		case 3:
 			Rect c;
 			c.bot = ypos - 20;
 			c.left = xpos / HEALTHPOS;
@@ -113,9 +119,10 @@ void displayHealth(int input,int ypos, int xpos)
 			c.bot = ypos - 20;
 			c.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			c.center = 0;
-			ggprint8b(&c, 16, red, "%s", QUARTERH);
+			ggprint8b(&c, 16, red, "%s", &QUARTERH);
 			break;
-		case EMPTY:
+		//case EMPTY:
+		case 4:
 			Rect d;
 			d.bot = ypos - 20;
 			d.left = xpos / HEALTHPOS;
@@ -124,7 +131,7 @@ void displayHealth(int input,int ypos, int xpos)
 			d.bot = ypos - 20;
 			d.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			d.center = 0;
-			ggprint8b(&d, 16, red, "%s", EMPTYH);
+			ggprint8b(&d, 16, red, "%s", &EMPTYH);
 			break;
 
 		default: 
@@ -140,16 +147,20 @@ void displayHealth(int input,int ypos, int xpos)
 void playerState(int healthbar, int ypos, int xpos) 
 {
 	switch (healthbar) {
-        case HITONCE:
+        //case HITONCE:
+        case 1:
             displayHealth(THREE4s,ypos,xpos);
             break;
-        case HITTWICE:
+        //case HITTWICE:
+        case 2:
             displayHealth(HALF,ypos,xpos);
             break;
-        case HITTHRICE:
+        //case HITTHRICE:
+        case 3:
             displayHealth(QUARTER,ypos,xpos);
             break;
-        case DEAD:
+        //case DEAD:
+        case 4:
             displayHealth(EMPTY,ypos,xpos);
             break;
 
@@ -192,7 +203,8 @@ void printWelcome()
 // Screen for a paused game.
 void pauseGame(int xrespos, int yrespos)
 {
-	Game_mode = PAUSED;
+	//Game_mode = PAUSED;
+	Game_mode = 2;
 	Rect paused;
 	paused.bot = yrespos - 190;
 	paused.left = xrespos/HALVED;
@@ -208,10 +220,10 @@ void powText()
     return;
 }
 
-void incrementZombiesKilled()
+int incrementZombiesKilled(int &zombehs)
 {
-	zombie_kills++;
-	return;	
+	zombehs = zombehs + 1;
+	return zombehs;	
 }
 
 // 'changeBoolean()' will "flip" the value of any bool sent to it.
@@ -227,9 +239,9 @@ bool changeBoolean(bool &input)
 }
 
 //'zombieKillCount(int)' is a func that displays total zombies killed.
-void zombieKillCount(int ypos)
+void zombieKillCount(int ypos,int zombie_kills)
 {
-	extern int zombie_kills;
+	//extern int zombie_kills;
 	Rect text;
 	text.bot = ypos - YOFFSET;
 	text.left = 10;
@@ -248,12 +260,13 @@ void resetKillCount()
 }
 
 // End the game. Func WILL check if you killed enough zombies or not.
-void endTheGame()
+void endTheGame(int &zombieKills)
 {
-	if (zombie_kills >= 11) {
+	if (zombieKills >= 11) {
+	cout << "we finished but bothing... " ;
 	resetKillCount();
 	changeBoolean(Next);
-	Game_mode = MENU;
+	Game_mode = 0;
 	} else
 		cout << "You're not done killin' yet!" << endl;
 }
@@ -320,9 +333,9 @@ void displayMenu(int yrespos, int xrespos)
 	return;
 }
 
-float initZombiePosition(int input)
+float initZombiePosition(int input,int &zombie_pos)
 {
-	zombie_pos = input - 10;
+	zombie_pos = input;
 	return zombie_pos;
 }
 
@@ -378,10 +391,33 @@ void timerBox(int x,int y)
 	p.left = x/2;
 	p.center = 0;
 	ggprint8b(&p, 16, yellow, "testing: ");
-	p.bot = y-50;
+	p.bot = y-XOFFSET;
 	p.left = x-200;
 	p.center = 1;
 	ggprint8b(&p, 16, yellow, "%lf", my_timer);
 	glPopMatrix(); // maybe problem
 }
 
+void stateHitOnce(int &state)
+{
+	state = 1;
+	return;
+}
+
+void stateHitTwice(int &state)
+{
+	state = 2;
+	return;
+}
+
+void stateHitThrice(int &state)
+{
+	state = 3;
+	return;
+}
+// player is Dead. Need to change screen
+void statePlayerDead(int &state)
+{
+	state = 4;
+	return;
+}

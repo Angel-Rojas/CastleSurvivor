@@ -17,12 +17,14 @@ Mac: mac
 
 main: main.cpp timers.cpp log.cpp Common.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christy.cpp christy.h nygelA.cpp nygelA.h
 	g++ $(CFLAGS) main.cpp log.cpp timers.cpp \
+	angelR.cpp christy.cpp nygelA.cpp	\
 	libggfonts.a -Wall $(LFLAGS) -o main
 
 mac: main.cpp timers.cpp log.cpp Common.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christy.cpp christy.h nygelA.cpp nygelA.h
 	g++ $(CFLAGS) main.cpp log.cpp timers.cpp \
-	libggfontsMac.a -Wall -I/usr/X11R6/include -L/usr/X11R6/lib -framework OpenGL -framework Cocoa -lX11 -lm -lGL -omain 
-
+	angelR.cpp christy.cpp nygelA.cpp	\
+	libggfontsMac.a -Wall -I/usr/X11R6/include \
+	-L/usr/X11R6/lib -framework OpenGL -framework Cocoa -lX11 -lm -lGL -omain 
 
 clean:
 	rm -f main

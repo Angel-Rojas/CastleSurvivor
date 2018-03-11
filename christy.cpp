@@ -10,6 +10,7 @@
 #include <time.h>
 //#include <X11/Xlib.h>
 #include <iostream>
+#include "fonts.h"
 using namespace std;
 
 //const double OOBILLION = 1.0 / 1e9;
