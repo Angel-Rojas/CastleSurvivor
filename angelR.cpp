@@ -17,8 +17,8 @@ using namespace std;
 #define YOFFSET  31
 #define MOREYOFFSET  41
 #define XOFFSET  150
-#define blue 0xab0000cc
-#define lt_blue 0x3b5998
+#define blue 0x3b5998
+#define lt_blue 0x87cefa
 #define red 0x00ff0000
 #define yellow 0x00ffff00
 #define FULLH  "[====>]"
@@ -28,6 +28,7 @@ using namespace std;
 #define EMPTYH  "[       ]"
 #define HEALTHOFFSET  40
 #define HEALTHPOS  11
+#define HALVED  2
 
 // Global Variables
 static int zombie_kills = 0;
@@ -61,6 +62,7 @@ enum HealthStates {
 enum GameMode {
 	MENU,
 	PLAY,
+	PAUSED,
 	CREDITS
 };
 
@@ -175,7 +177,6 @@ void resetWave()
 void displayWave(int ypos, int xpos)
 {
 	Rect text;
-	// bot = 640, left = 10, center = 0
 	text.bot = ypos - MOREYOFFSET;
 	text.left = xpos;
 	text.center = 0;
@@ -185,6 +186,19 @@ void displayWave(int ypos, int xpos)
 void printWelcome()
 {
     cout << "Welcome, Player 1" << endl;
+    return;
+}
+
+// Screen for a paused game.
+void pauseGame(int xrespos, int yrespos)
+{
+	Game_mode = PAUSED;
+	Rect paused;
+	paused.bot = yrespos - 190;
+	paused.left = xrespos/HALVED;
+	paused.center = 1;
+	ggprint8b(&paused, 16, lt_blue, "Game Paused.");
+	ggprint8b(&paused, 16, lt_blue, "P - Play mode");
     return;
 }
 
@@ -220,7 +234,6 @@ void zombieKillCount(int ypos)
 	text.bot = ypos - YOFFSET;
 	text.left = 10;
 	text.center = 0;
-	//int zombiesKill = kills;
 	ggprint8b(&text, 16, yellow, "Zombie Kill Count: [ %i]", zombie_kills);
 } 
 
@@ -234,21 +247,34 @@ void resetKillCount()
 	}
 }
 
+// End the game. Func WILL check if you killed enough zombies or not.
+void endTheGame()
+{
+	if (zombie_kills >= 11) {
+	resetKillCount();
+	changeBoolean(Next);
+	Game_mode = MENU;
+	} else
+		cout << "You're not done killin' yet!" << endl;
+}
+
 // 'nextLevel2()' prints the next level to screen.
-void nextLevel2()
+void endGameScreen()
 {
 	void render();
-	next_level = 2;
+	//next_level = 2;
 	glClear(GL_COLOR_BUFFER_BIT);
 	Rect text;
 	text.bot = 900 / 2;
 	text.left = 1250 / 2;
-	text.center = 0;
-	ggprint8b(&text, 16, yellow, "NEXT LEVEL: %i", next_level);
-	ggprint8b(&text, 16, yellow, "O - Okay");
-	// Wait a second for printed message to be read
-	//sleep(2);
+	text.center = 1;
+	//ggprint8b(&text, 16, yellow, "NEXT LEVEL: %i", next_level);
+	ggprint8b(&text, 16, yellow, "YOU WIN! :)");
+	ggprint8b(&text, 16, yellow, "O - Okay, coolbeans");
+	// Wait for the printed message to be read
+	//sleep(1);
 	next_level++;
+	//Game_mode = MENU;
 	return;
 }
 
@@ -259,17 +285,38 @@ void checkNextLevel()
 		Next = true;
 		counter = 0;
 	} if (zombie_kills == 5 && Next) {
-		nextLevel2();
+		endGameScreen();
 	}
 }
 
-void displayMenu()
+void displayMenu(int yrespos, int xrespos)
 {
 	Rect menu;
-	menu.bot = 550;
-	menu.left = 550;
-	menu.center = 0;
-	ggprint8b(&menu, 16, yellow, "Game Menu: Press P to play");
+	menu.bot = yrespos - 190;
+	menu.left = xrespos/HALVED;
+	menu.center = 1;
+	ggprint8b(&menu, 16, yellow, "Game Menu");
+	//
+	static float angle = 0.0;
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	glTranslatef(-70,60,0);
+		//angle = angle + 2.5;
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(xrespos/HALVED, yrespos/HALVED, 0);
+		//angle = angle + 2.5;
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glPopMatrix();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	menu.bot = yrespos - 275;
+	menu.left = xrespos/HALVED;
+	menu.center = 1;
+	ggprint8b(&menu, 16, yellow, "P - Play");
 	return;
 }
 
@@ -282,8 +329,6 @@ float initZombiePosition(int input)
 // Lab 7 timer function for timing another function.
 double angelsTimer(int inputx, int inputy)
 {
-	//timeCopy(&g.bulletTimer, &bt);
-
 	extern double timeDiff(struct timespec *start, struct timespec *end);
 	extern void timeCopy(struct timespec *dest, struct timespec *source);
 	struct timespec ftimeStart, ftimeEnd;
@@ -297,13 +342,13 @@ double angelsTimer(int inputx, int inputy)
 	my_timer += timeDiff(&ftimeStart, &ftimeEnd);
 	void timerBox(int,int);
 	timerBox(inputx,inputy);
-    	Rect z;
-	z.bot = inputy-34; //50
-	z.left = inputx-160; //50
+	Rect z;
+	z.bot = inputy-34;
+	z.left = inputx-160;
 	z.center = 0;
 	ggprint8b(&z, 16, yellow, "ANGEL: ");
-	z.bot = inputy-34; //50
-	z.left = inputx-85; // 100
+	z.bot = inputy-34;
+	z.left = inputx-85;
 	z.center = 0;
 	ggprint8b(&z, 16, yellow, "%lf", my_timer); 
 	return my_timer;
@@ -321,7 +366,6 @@ void timerBox(int x,int y)
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
 	//glTranslatef(-50, -50, 0);
 		//angle = angle + 2.5;
-	
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
 		glVertex2i(0,	25);
@@ -329,17 +373,15 @@ void timerBox(int x,int y)
 		glVertex2i(150,	0);
 	glEnd();
 	glColor3f(1.0f, 0.0f, 0.0f);
-	
-    	//cout << x << " " << y << " ";
 	Rect p;
 	p.bot = y/2;
 	p.left = x/2;
-	p.center = 1;
+	p.center = 0;
 	ggprint8b(&p, 16, yellow, "testing: ");
 	p.bot = y-50;
 	p.left = x-200;
 	p.center = 1;
 	ggprint8b(&p, 16, yellow, "%lf", my_timer);
-	glPopMatrix();
+	glPopMatrix(); // maybe problem
 }
 

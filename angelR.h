@@ -8,9 +8,12 @@
 void printWelcome();
 void zombieKillCount();
 float initZombiePosition(int);
-void nextLevel2();
 double angelsTimer(int,int);
 void timerBox(int,int);
+void displayMenu(int,int);
+void pauseGame(int,int);
+void endGameScreen();
+void endTheGame();
 
 
 #endif

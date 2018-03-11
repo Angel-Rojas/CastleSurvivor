@@ -10,6 +10,6 @@
 
 >zombie stop point
 	should stop at a certain point and stay there
->no more bullet wrapping
+--no more bullet wrapping	// Angel fixed this
 >money drop
 	when zombies killed

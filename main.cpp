@@ -334,16 +334,15 @@ void incrementZombiesKilled();
 void incrementWave();
 void resetWave();
 void displayWave(int,int);
-void nextLevel2();
 bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
-void displayMenu();
 extern void timerN(double);
+double timer();
 
-//==========================================================================
+//=========================================================================
 // M A I N
-//==========================================================================
+//=========================================================================
 int main()
 {
 	// logOpen();
@@ -361,14 +360,12 @@ int main()
 			done = check_keys(&e);
 		}
 		physics();
-		//Next level check if we kill X number of Zombies
+		// Check to see if end of game (max zombies killed)
 		if (counter == 11) {
 			changeBoolean(Next);
 			counter = 0;
 		} if (zombie_kills == 11 && Next) {
-			//Next = false;
-			//counter = 0;
-			nextLevel2();
+			endGameScreen();
 		} else {
 			render();
 		}
@@ -434,42 +431,35 @@ void check_mouse(XEvent *e)
 			struct timespec bt;
 			clock_gettime(CLOCK_REALTIME, &bt);
 			double ts = timeDiff(&g.bulletTimer, &bt);
-			//switch (Game_mode) {
-			//	case PLAY:
-					if (ts > MINIMUM_TIME) {
-						timeCopy(&g.bulletTimer, &bt);
-						//shoot a bullet...
-						if (g.nbullets < MAX_BULLETS) {
-							Bullet *b = &g.barr[g.nbullets];
-							timeCopy(&b->time, &bt);
-							b->pos[0] = g.ship.pos[0];
-							b->pos[1] = g.ship.pos[1];
-							b->vel[0] = g.ship.vel[0];
-							b->vel[1] = g.ship.vel[1];
-							//convert ship angle to radians
-							Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-							//convert angle to a vector
-							Flt xdir = cos(rad);
-							Flt ydir = sin(rad);
-							b->pos[0] += xdir*20.0f;
-							b->pos[1] += ydir*20.0f;
-							b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
-							b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
-							b->color[0] = 1.0f;
-							b->color[1] = 1.0f;
-							b->color[2] = 1.0f;
-							++g.nbullets;
-						}
-					}
-			//		break;
-			//	case MENU:
-			//		break;
-			// End of switch statement
-			//}
+			if (ts > MINIMUM_TIME) {
+				timeCopy(&g.bulletTimer, &bt);
+				//shoot a bullet...
+				if (g.nbullets < MAX_BULLETS) {
+					Bullet *b = &g.barr[g.nbullets];
+					timeCopy(&b->time, &bt);
+					b->pos[0] = g.ship.pos[0];
+					b->pos[1] = g.ship.pos[1];
+					b->vel[0] = g.ship.vel[0];
+					b->vel[1] = g.ship.vel[1];
+					//convert ship angle to radians
+					Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+					//convert angle to a vector
+					Flt xdir = cos(rad);
+					Flt ydir = sin(rad);
+					b->pos[0] += xdir*20.0f;
+					b->pos[1] += ydir*20.0f;
+					b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
+					b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
+					b->color[0] = 1.0f;
+					b->color[1] = 1.0f;
+					b->color[2] = 1.0f;
+					++g.nbullets;
+				}
+			}
 		}
-			struct timespec bt;
-			clock_gettime(CLOCK_REALTIME, &bt);
-			double ts = timeDiff(&g.bulletTimer, &bt);
+		struct timespec bt;
+		clock_gettime(CLOCK_REALTIME, &bt);
+		double ts = timeDiff(&g.bulletTimer, &bt);
 		if (e->xbutton.button==3) {
 			//Right button is down
 			if (ts > MINIMUM_TIME) {
@@ -574,22 +564,25 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
+		case XK_space:
+			Game_mode = PAUSED;
+			break;
 		case XK_p:
 			Game_mode = PLAY;
 			break;
 		case XK_o:
-			changeBoolean(Next);
+			endTheGame();
 			break;
 		case XK_i:
 			// Angel testing something
 			State = THREE4s;
-			cout << "State changed to " << State << endl;
+			cout << "State(health) changed to 3/4s" << endl;
 			break;
 		case XK_u:
 			break;
 		case XK_m:
 			// Angel testing something
-			Game_mode = MENU;
+			//Game_mode = MENU;
 			break;
 		case XK_Down:
 			break;
@@ -694,7 +687,7 @@ void physics()
 		b->pos[0] += b->vel[0];
 		b->pos[1] += b->vel[1];
 		//Check for collision with window edges
-		if (b->pos[0] < 0.0) {
+		/*if (b->pos[0] < 0.0) {
 			b->pos[0] += (float)gl.xres;
 		}
 		else if (b->pos[0] > (float)gl.xres) {
@@ -705,34 +698,42 @@ void physics()
 		}
 		else if (b->pos[1] > (float)gl.yres) {
 			b->pos[1] -= (float)gl.yres;
-		}
+		} */
 		i++;
 	}
 	//
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
-	while (a) {
-			/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
-		a->pos[0] += a->vel[0];
-		//a->pos[1] += a->vel[1];
-		//Check for collision with window edges
-		if (a->pos[0] < -100.0) {
-			a->pos[0] += (float)gl.xres+200;
-		}
-		else if (a->pos[0] > (float)gl.xres+100) {
-			a->pos[0] -= (float)gl.xres+200;
-		}
-		else if (a->pos[1] < -100.0) {
-			a->pos[1] += (float)gl.yres+200;
-		}
-		else if (a->pos[1] > (float)gl.yres+100) {
-			a->pos[1] -= (float)gl.yres+200;
-		}
-		// The following line causes the object to rotate
-		//a->angle += a->rotate;
-		a = a->next;
+	switch (Game_mode) {
+		case MENU:
+			break;
+		case PLAY:
+			while (a) {
+				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
+				a->pos[0] += a->vel[0];
+				//a->pos[1] += a->vel[1];
+				//Check for collision with window edges
+				if (a->pos[0] < -100.0) {
+					a->pos[0] += (float)gl.xres+200;
+				}
+				else if (a->pos[0] > (float)gl.xres+100) {
+					a->pos[0] -= (float)gl.xres+200;
+				}
+				else if (a->pos[1] < -100.0) {
+					a->pos[1] += (float)gl.yres+200;
+				}
+				else if (a->pos[1] > (float)gl.yres+100) {
+					a->pos[1] -= (float)gl.yres+200;
+				}
+				// The following line causes the object to rotate
+				//a->angle += a->rotate;
+				a = a->next;
+			}//end of while
+			break;
+		case PAUSED:
+			break;
+	// end of Switch
 	}
-	//
 	//Asteroid collision with bullets?
 	//If collision detected:
 	//   1. delete the bullet
@@ -752,8 +753,7 @@ void physics()
 				//this asteroid is hit.
 				// Increment asteroids destroyed
 				g.nastdestroyed++;
-
-					if (a->radius > MINIMUM_ASTEROID_SIZE) {
+				if (a->radius > MINIMUM_ASTEROID_SIZE) {
 					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
 					 * LITTLER OBJECTS
 						//break it into pieces.
@@ -875,7 +875,6 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
-	timerN(0);
 	Bullet *b = &g.barr[0];
 	for (int i=0; i<g.nbullets; i++) {
 		//Log("draw bullet...\n");
@@ -897,15 +896,15 @@ void render()
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
 		case PLAY:
-			//displayHealth(FULL,gl.yres,gl.xres);
+			// nygel timer
+			timerN(0);
 			//------------christy header------
 			void header(int , int, int, int);
 			//
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
 			//-------------christy timer-----
-			double timer();
 			//
-			timer();
+			//timer();
 			//----------- christy printname---
 			void printName();
 			//
@@ -921,13 +920,10 @@ void render()
 			zombieKillCount(gl.yres);
 			displayWave(gl.yres,10);
 			//
-			ggprint8b(&r, 16, lt_blue, "Castle Survivor!");
-			// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
+			ggprint8b(&r, 16, red, "Castle Survivor!");
 			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
 			// //
-			// //christy print name
-			//printName();
 			//-------------
 			//Draw the ship
 			glColor3fv(g.ship.color);
@@ -1035,7 +1031,10 @@ void render()
 				glEnd();
 				++b;
 				} */
-			displayMenu();
+			displayMenu(gl.yres, gl.xres);
+			break;
+		case PAUSED:
+			pauseGame(gl.xres, gl.yres);
 			break;
 	}
 	
