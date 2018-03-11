@@ -263,7 +263,7 @@ void resetKillCount()
 void endTheGame(int &zombieKills)
 {
 	if (zombieKills >= 11) {
-	cout << "we finished but bothing... " ;
+	//cout << "GAME ENDING, RESET VALUEES... ";
 	resetKillCount();
 	changeBoolean(Next);
 	Game_mode = 0;
