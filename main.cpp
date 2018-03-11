@@ -1,8 +1,8 @@
 //
 // Modified by: Angel Rojas
-// 		Christy G
-// 		Nygel Aton
-// 		Abdullah Aljahdali
+//		Christy G
+//		Nygel Aton
+//		Abdullah Aljahdali
 //
 //
 // filename: main.cpp
@@ -28,8 +28,8 @@ using namespace std;
 #include <unistd.h>
 #include <X11/Xlib.h>
 //#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 // #include "log.h"
@@ -37,12 +37,12 @@ using namespace std;
 
 // These lines were 'merged' from Abdullah's original main.cpp file
 #include "Common.h"
-#include "angelR.cpp"
+//#include "angelR.cpp"
 #include "angelR.h"
-#include "nygelA.cpp"
+//#include "nygelA.cpp"
 #include "nygelA.h"
 //#include "abdullahA.h"
-#include "christy.cpp"
+//#include "christy.cpp"
 #include "christy.h"
 
 
@@ -61,43 +61,59 @@ typedef Flt	Matrix[4][4];
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
 						(c)[1]=(a)[1]-(b)[1]; \
 						(c)[2]=(a)[2]-(b)[2]
+
+
 //constants
 //const float TIMESLICE = 1.0f;
 //const float GRAVITY = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-const int MAX_BULLETS = 11;
-const Flt MINIMUM_ASTEROID_SIZE = 60.0;
+#define red 0x00ff0000
 
 //commonly used 'magic numbers'
 const float RIGHT_ANGLE = 90.0;
 const float WHOLE_ANGLE = 360.0f;
 const float MINIMUM_TIME = 0.1;
 const int ZERO = 0;
+const int MAX_BULLETS = 11;
+const Flt MINIMUM_ASTEROID_SIZE = 60.0;
 
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // EXTERNAL variables, and Setup timers
 //
 //const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
-extern int zombie_kills;
+extern int zombie_pos;
 extern int next_level;
 extern int wave_count;
-extern int counter;
-extern bool Next;
-extern int State;
+extern string POW;
+extern int YOFFSET; 
+extern int MOREYOFFSET; 
+extern int XOFFSET;
+extern string FULLH;
+extern string THREE4sH;
+extern string HALFH;
+extern string QUARTERH;
+extern string EMPTYH;
+extern int HEALTHOFFSET;
+extern int HEALTHPOS;
+extern int HALVED;
 
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 class Global {
 public:
+	int Game_mode, State, counter, zombie_kills;// zombie_pos;
+	bool Next;
 	int xres, yres;
+	long double playTime;
 	char keys[65536];
 	Global() {
 		xres = 1250;
 		yres = 900;
+		playTime = 0.0;
 		memset(keys, ZERO, 65536);
 	}
 } gl;
@@ -184,7 +200,8 @@ public:
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
 			}
-			a->pos[ZERO] = (Flt)(rand() % gl.xres);
+			initZombiePosition(gl.xres,zombie_pos);
+			a->pos[ZERO] = zombie_pos;
 			a->pos[1] = (Flt)(rand() % gl.yres);
 			a->pos[2] = 0.0f;
 			a->angle = 0.0;
@@ -323,20 +340,27 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
-void zombieKillCount(int);
 void resetKillCount();
-void incrementZombiesKilled();
 void incrementWave();
 void resetWave();
 void displayWave(int,int);
-void nextLevel2();
 bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
+extern void timerN(double);
+double timer();
+void powText();
+void printWelcome();
+float initZombiePosition(int,int&);
+double angelsTimer(int,int);
+void timerBox(int,int);
+void displayMenu(int,int);
+void pauseGame(int,int);
+void endGameScreen();
 
-//==========================================================================
+//=========================================================================
 // M A I N
-//==========================================================================
+//=========================================================================
 int main()
 {
 	// logOpen();
@@ -344,25 +368,27 @@ int main()
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
+
 	while (!done) {
-		while (x11.getXPending()) {
+		
+	    	while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
 			check_mouse(&e);
 			done = check_keys(&e);
 		}
 		physics();
-		//Next level check if we kill X number of Zombies
-		if (counter == 11) {
-		    	changeBoolean(Next);
-			counter = 0;
-		} if (zombie_kills == 11 && Next) {
-			//Next = false;
-			//counter = 0;
-			nextLevel2();
-		} else {
+		// Check to see if end of game (max zombies killed)
+		/*if (gl.counter == 5) {
+			changeBoolean(gl.Next);
+			cout << gl.Next << endl;
+			gl.counter = 0;
+		} if (gl.zombie_kills == 5 && gl.Next == 1) {
+			endGameScreen();
+			cout << "inside ending " << gl.Next << endl;
+		} else {*/
 			render();
-		}
+		//}
 		x11.swapBuffers();
 	}
 	// cleanup_fonts();
@@ -451,9 +477,9 @@ void check_mouse(XEvent *e)
 				}
 			}
 		}
-			struct timespec bt;
-			clock_gettime(CLOCK_REALTIME, &bt);
-			double ts = timeDiff(&g.bulletTimer, &bt);
+		struct timespec bt;
+		clock_gettime(CLOCK_REALTIME, &bt);
+		double ts = timeDiff(&g.bulletTimer, &bt);
 		if (e->xbutton.button==3) {
 			//Right button is down
 			if (ts > MINIMUM_TIME) {
@@ -484,47 +510,47 @@ void check_mouse(XEvent *e)
 		}
 	} // end of ButtonPress
 	// if (e->type == MotionNotify) {
-	// 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-	// 		//Mouse moved
-	// 		int xdiff = savex - e->xbutton.x;
-	// 		int ydiff = savey - e->xbutton.y;
-	// 		if (++ct < 10)
-	// 			return;
-	// 		if (xdiff > 0) {
-	// 			//mouse moved along the x-axis.
-	// 			g.ship.angle += 0.05f * (float)xdiff;
-	// 			if (g.ship.angle >= 360.0f)
-	// 				g.ship.angle -= 360.0f;
-	// 		}
-	// 		else if (xdiff < 0) {
-	// 			g.ship.angle += 0.05f * (float)xdiff;
-	// 			if (g.ship.angle < 0.0f)
-	// 				g.ship.angle += 360.0f;
-	// 		}
-	// 		if (ydiff > 0) {
-	// 			//mouse moved along the y-axis.
-	// 			//apply thrust
-	// 			//convert ship angle to radians
-	// 			Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-	// 			//convert angle to a vector
-	// 			Flt xdir = cos(rad);
-	// 			Flt ydir = sin(rad);
-	// 			g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
-	// 			g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
-	// 			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-	// 				g.ship.vel[1]*g.ship.vel[1])/100;
-	// 			if (speed > 15.0f) {
-	// 				speed = 15.0f;
-	// 				normalize2d(g.ship.vel);
-	// 				g.ship.vel[0] *= speed;
-	// 				g.ship.vel[1] *= speed;
-	// 			}
-	// 			g.mouseThrustOn = true;
-	// 			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-	// 		}
-	// 		// x11.set_mouse_position(100, 100);
-	// 		// savex = savey = 100;
-	// 	}
+	//	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	//		//Mouse moved
+	//		int xdiff = savex - e->xbutton.x;
+	//		int ydiff = savey - e->xbutton.y;
+	//		if (++ct < 10)
+	//			return;
+	//		if (xdiff > 0) {
+	//			//mouse moved along the x-axis.
+	//			g.ship.angle += 0.05f * (float)xdiff;
+	//			if (g.ship.angle >= 360.0f)
+	//				g.ship.angle -= 360.0f;
+	//		}
+	//		else if (xdiff < 0) {
+	//			g.ship.angle += 0.05f * (float)xdiff;
+	//			if (g.ship.angle < 0.0f)
+	//				g.ship.angle += 360.0f;
+	//		}
+	//		if (ydiff > 0) {
+	//			//mouse moved along the y-axis.
+	//			//apply thrust
+	//			//convert ship angle to radians
+	//			Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+	//			//convert angle to a vector
+	//			Flt xdir = cos(rad);
+	//			Flt ydir = sin(rad);
+	//			g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
+	//			g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
+	//			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+	//				g.ship.vel[1]*g.ship.vel[1])/100;
+	//			if (speed > 15.0f) {
+	//				speed = 15.0f;
+	//				normalize2d(g.ship.vel);
+	//				g.ship.vel[0] *= speed;
+	//				g.ship.vel[1] *= speed;
+	//			}
+	//			g.mouseThrustOn = true;
+	//			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+	//		}
+	//		// x11.set_mouse_position(100, 100);
+	//		// savex = savey = 100;
+	//	}
 	// }
 
 	if (e->type == MotionNotify) {
@@ -558,18 +584,27 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
+		case XK_space:
+			gl.Game_mode = 2;
+			break;
 		case XK_p:
-			State = THREE4s;
-			cout << "State changed to " << State << endl;
+			gl.Game_mode = 1;
 			break;
 		case XK_o:
-			changeBoolean(Next);
+			endTheGame(gl.zombie_kills);
 			break;
 		case XK_i:
+			// Angel testing something
+			//State = THREE4s;
+			statePlayerDead(gl.State);
+			//gl.State = 1;
+			//cout << "State(health) changed to 3/4s" << gl.State << endl;
 			break;
 		case XK_u:
 			break;
-		case XK_s:
+		case XK_m:
+			// Angel testing something
+			//Game_mode = MENU;
 			break;
 		case XK_Down:
 			break;
@@ -634,7 +669,6 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 	*/
 }
-
 void physics()
 {
 	Flt d0,d1,dist;
@@ -643,16 +677,16 @@ void physics()
 	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	// if (g.ship.pos[0] < 0.0) {
-	// 	g.ship.pos[0] += (float)gl.xres;
+	//	g.ship.pos[0] += (float)gl.xres;
 	// }
 	// else if (g.ship.pos[0] > (float)gl.xres) {
-	// 	g.ship.pos[0] -= (float)gl.xres;
+	//	g.ship.pos[0] -= (float)gl.xres;
 	// }
 	// else if (g.ship.pos[1] < 0.0) {
-	// 	g.ship.pos[1] += (float)gl.yres;
+	//	g.ship.pos[1] += (float)gl.yres;
 	// }
 	// else if (g.ship.pos[1] > (float)gl.yres) {
-	// 	g.ship.pos[1] -= (float)gl.yres;
+	//	g.ship.pos[1] -= (float)gl.yres;
 	// }
 	//
 	//Update bullet positions
@@ -662,7 +696,7 @@ void physics()
 	while (i < g.nbullets) {
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
+	        double ts = timeDiff(&b->time, &bt);
 		if (ts > 2.5) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
@@ -675,7 +709,7 @@ void physics()
 		b->pos[0] += b->vel[0];
 		b->pos[1] += b->vel[1];
 		//Check for collision with window edges
-		if (b->pos[0] < 0.0) {
+		/*if (b->pos[0] < 0.0) {
 			b->pos[0] += (float)gl.xres;
 		}
 		else if (b->pos[0] > (float)gl.xres) {
@@ -686,34 +720,42 @@ void physics()
 		}
 		else if (b->pos[1] > (float)gl.yres) {
 			b->pos[1] -= (float)gl.yres;
-		}
+		} */
 		i++;
 	}
 	//
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
-	while (a) {
-	    	/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
-		a->pos[0] += a->vel[0];
-		//a->pos[1] += a->vel[1];
-		//Check for collision with window edges
-		if (a->pos[0] < -100.0) {
-			a->pos[0] += (float)gl.xres+200;
-		}
-		else if (a->pos[0] > (float)gl.xres+100) {
-			a->pos[0] -= (float)gl.xres+200;
-		}
-		else if (a->pos[1] < -100.0) {
-			a->pos[1] += (float)gl.yres+200;
-		}
-		else if (a->pos[1] > (float)gl.yres+100) {
-			a->pos[1] -= (float)gl.yres+200;
-		}
-		// The following line causes the object to rotate
-		//a->angle += a->rotate;
-		a = a->next;
+	switch (gl.Game_mode) {
+		case 0:
+			break;
+		case 1:
+			while (a) {
+				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
+				a->pos[0] += a->vel[0];
+				//a->pos[1] += a->vel[1];
+				//Check for collision with window edges
+				if (a->pos[0] < -100.0) {
+					a->pos[0] += (float)gl.xres+200;
+				}
+				else if (a->pos[0] > (float)gl.xres+100) {
+					a->pos[0] -= (float)gl.xres+200;
+				}
+				else if (a->pos[1] < -100.0) {
+					a->pos[1] += (float)gl.yres+200;
+				}
+				else if (a->pos[1] > (float)gl.yres+100) {
+					a->pos[1] -= (float)gl.yres+200;
+				}
+				// The following line causes the object to rotate
+				//a->angle += a->rotate;
+				a = a->next;
+			}//end of while
+			break;
+		case 2:
+			break;
+	// end of Switch
 	}
-	//
 	//Asteroid collision with bullets?
 	//If collision detected:
 	//   1. delete the bullet
@@ -733,11 +775,10 @@ void physics()
 				//this asteroid is hit.
 				// Increment asteroids destroyed
 				g.nastdestroyed++;
-
-			    	if (a->radius > MINIMUM_ASTEROID_SIZE) {
+				if (a->radius > MINIMUM_ASTEROID_SIZE) {
 					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
 					 * LITTLER OBJECTS
-				    	//break it into pieces.
+						//break it into pieces.
 					Asteroid *ta = a;
 					//buildAsteroidFragment(ta, a);
 					int r = rand()%10+5;
@@ -765,9 +806,8 @@ void physics()
 					// increment a destroyed asteroid
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
-					incrementZombiesKilled();
-					//zombie_kills++;
-					counter++;
+					incrementZombiesKilled(gl.zombie_kills);
+					gl.counter++;
 				}
 				//delete the bullet...
 				memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
@@ -852,96 +892,10 @@ void physics()
 			g.mouseThrustOn = false;
 	}
 }
-
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
-	//displayHealth(FULL,gl.yres,gl.xres);
-	playerState(State,gl.yres,gl.xres);
-	Rect r;
-	r.bot = gl.yres - 20;
-	r.left = 10;
-	r.center = 0;
-	// Lets display our kills and Wave number.
-	zombieKillCount(gl.yres);
-	displayWave(gl.yres,10);
-	//
-	ggprint8b(&r, 16, lt_blue, "Castle Survivor!");
-	// //ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-	// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
-	// //
-	// //christy print name
-	//printName();
-	//-------------
-	//Draw the ship
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
-	glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
-	glBegin(GL_TRIANGLES);
-		glVertex2f(-12.0f, -10.0f);
-		glVertex2f(  0.0f, 20.0f);
-		glVertex2f(  0.0f, -6.0f);
-		glVertex2f(  0.0f, -6.0f);
-		glVertex2f(  0.0f, 20.0f);
-		glVertex2f( 12.0f, -10.0f);
-	glEnd();
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-		glVertex2f(0.0f, 0.0f);
-	glEnd();
-	glPopMatrix();
-	if (gl.keys[XK_Up] || g.mouseThrustOn) {
-		int i;
-		//draw thrust
-		Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		Flt xs,ys,xe,ye,r;
-		glBegin(GL_LINES);
-			for (i=0; i<16; i++) {
-				xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-				ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-				r = rnd()*40.0+40.0;
-				xe = -xdir * r + rnd() * 18.0 - 9.0;
-				ye = -ydir * r + rnd() * 18.0 - 9.0;
-				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-				glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
-				glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
-			}
-		glEnd();
-	}
-	//------------------
-	//Draw the asteroids
-	{
-		Asteroid *a = g.ahead;
-		while (a) {
-			//Log("draw asteroid...\n");
-			glColor3fv(a->color);
-			glPushMatrix();
-			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			// change from LINE_LOOP to POLYGON to fill color
-			glBegin(GL_POLYGON);
-				//Log("%i verts\n",a->nverts);
-				for (int j=0; j<a->nverts; j++) {
-					glVertex2f(a->vert[j][0], a->vert[j][1]);
-				}
-			glEnd();
-			glPopMatrix();
-			glColor3f(1.0f, 0.0f, 0.0f);
-			// below is where the Red Center Dot is made
-			//glBegin(GL_POLYGON);
-			//	glVertex2f(a->pos[0], a->pos[1]);
-			glEnd();
-			a = a->next;
-		}
-	}
-	//----------------
-	//Draw the bullets
 	Bullet *b = &g.barr[0];
 	for (int i=0; i<g.nbullets; i++) {
 		//Log("draw bullet...\n");
@@ -959,5 +913,150 @@ void render()
 			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 		++b;
+		}
+	switch (gl.Game_mode) {
+		// The below case is the MAIN RENDER function
+		case 1:
+			// nygel timer
+			timerN(0);
+			//------------christy header------
+			void header(int , int, int, int);
+			//
+			header(gl.xres, gl.yres, gl.xres, gl.yres);
+			//-------------christy timer-----
+			//
+			//timer();
+			//----------- christy printname---
+			void printName();
+			//
+			printName();
+			//-------------------------------
+			
+			playerState(gl.State,gl.yres,gl.xres);
+			Rect r;
+			r.bot = gl.yres - 20;
+			r.left = 10;
+			r.center = 0;
+			// Lets display our kills and Wave number.
+			zombieKillCount(gl.yres,gl.zombie_kills);
+			displayWave(gl.yres,10);
+			//
+			ggprint8b(&r, 16, red, "Castle Survivor!");
+			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
+			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
+			// //
+			//-------------
+			//Draw the ship
+			glColor3fv(g.ship.color);
+			glPushMatrix();
+			glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+			glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_TRIANGLES);
+				glVertex2f(-12.0f, -10.0f);
+				glVertex2f(  0.0f, 20.0f);
+				glVertex2f(  0.0f, -6.0f);
+				glVertex2f(  0.0f, -6.0f);
+				glVertex2f(  0.0f, 20.0f);
+				glVertex2f( 12.0f, -10.0f);
+			glEnd();
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glBegin(GL_POINTS);
+				glVertex2f(0.0f, 0.0f);
+			glEnd();
+			glPopMatrix();
+			if (gl.keys[XK_Up] || g.mouseThrustOn) {
+				int i;
+				//draw thrust
+				Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+				//convert angle to a vector
+				Flt xdir = cos(rad);
+				Flt ydir = sin(rad);
+				Flt xs,ys,xe,ye,r;
+				glBegin(GL_LINES);
+					for (i=0; i<16; i++) {
+						xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+						ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+						r = rnd()*40.0+40.0;
+						xe = -xdir * r + rnd() * 18.0 - 9.0;
+						ye = -ydir * r + rnd() * 18.0 - 9.0;
+						glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
+						glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
+						glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
+					}
+				glEnd();
+			}
+			//------------------
+			//Draw the asteroids
+			{
+				Asteroid *a = g.ahead;
+				while (a) {
+					//Log("draw asteroid...\n");
+					glColor3fv(a->color);
+					glPushMatrix();
+					glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+					glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+					// change from LINE_LOOP to POLYGON to fill color
+					glBegin(GL_POLYGON);
+						//Log("%i verts\n",a->nverts);
+						for (int j=0; j<a->nverts; j++) {
+							glVertex2f(a->vert[j][0], a->vert[j][1]);
+						}
+					glEnd();
+					glPopMatrix();
+					glColor3f(1.0f, 0.0f, 0.0f);
+					// below is where the Red Center Dot is made
+					//glBegin(GL_POLYGON);
+					//	glVertex2f(a->pos[0], a->pos[1]);
+					glEnd();
+					a = a->next;
+				}
+			}
+			//----------------
+			//Draw the bullets
+			/*Bullet *b = &g.barr[0];
+			for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 1.0);
+				glBegin(GL_POINTS);
+					glVertex2f(b->pos[0],      b->pos[1]);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+					glColor3f(0.8, 0.8, 0.8);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+				}*/
+			angelsTimer(gl.xres,gl.yres);
+			break;
+		case 0:
+			/*Bullet *b = &g.barr[0];
+			for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 1.0);
+				glBegin(GL_POINTS);
+					glVertex2f(b->pos[0],      b->pos[1]);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+					glColor3f(0.8, 0.8, 0.8);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+				} */
+			displayMenu(gl.yres, gl.xres);
+			break;
+		case 2:
+			pauseGame(gl.xres, gl.yres);
+			break;
 	}
+	
 }

@@ -4,4 +4,7 @@
 #include "Common.h"
 void printName();
 
+double timer();
+
+void header(int, int, int, int);
 #endif
