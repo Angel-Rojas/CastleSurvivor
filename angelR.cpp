@@ -10,7 +10,7 @@
 #include "fonts.h"
 #include "time.h"
 #include <ctime>
-#include <string>
+#include <cstring>
 using namespace std;
 
 // Define some 'Magic Numbers', or other usable variables
@@ -32,14 +32,14 @@ static int HALVED = 2;
 #define yellow 0x00ffff00
 
 // Global Variables
-static int zombie_kills = 0;
+int zombie_kills = 0;
 int zombie_pos = 0;
 static int next_level = 1;
 static int wave_count = 1;
 static int counter = 0;
-static bool Next = false;
+bool Next = false;
 static int State = 0;
-static int Game_mode = 0;
+int Game_mode = 0;
 static double my_timer = 0.0;
 
 // enumerator of Health Bars.
@@ -64,7 +64,8 @@ enum GameMode {
 	MENU=0,
 	PLAY=1,
 	PAUSED=2,
-	CREDITS=3
+	END=3,
+	CREDITS=4
 };
 
 // Function that actually displays player health bar.
@@ -84,6 +85,7 @@ void displayHealth(int input,int ypos, int xpos)
 			text.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			text.center = 0;
 			ggprint8b(&text, 16, red, "%s", &FULLH);
+			//ggprint8b(&text, 16, red, "[====>]");
 			break;
 		//case THREE4s:
 		case 1:
@@ -250,7 +252,7 @@ void zombieKillCount(int ypos,int zombie_kills)
 } 
 
 // This will reset the zombie kill counter when called.
-void resetKillCount()
+void resetKillCount(int &zombie_kills)
 {
 	if (zombie_kills >= 1) {
 		zombie_kills = 0;
@@ -260,21 +262,24 @@ void resetKillCount()
 }
 
 // End the game. Func WILL check if you killed enough zombies or not.
-void endTheGame(int &zombieKills)
+void endTheGame(int &zombieKills,bool &next,int &gamemode)
 {
-	if (zombieKills >= 11) {
-	//cout << "GAME ENDING, RESET VALUEES... ";
-	resetKillCount();
-	changeBoolean(Next);
-	Game_mode = 0;
+	if (zombieKills >= 5) {
+		//cout << "inside eTGame, Resetting values... " << endl;
+		resetKillCount(zombie_kills);
+		changeBoolean(Next);
+		gamemode = 0;
+		/*cout << "AFTER RESET: " << Game_mode 
+			<< " " << zombie_kills 
+			<< " " << Next << " " 
+			<< endl;*/
 	} else
 		cout << "You're not done killin' yet!" << endl;
 }
 
-// 'nextLevel2()' prints the next level to screen.
+// 'endGameScreen()' prints the end game screen.
 void endGameScreen()
 {
-	void render();
 	//next_level = 2;
 	glClear(GL_COLOR_BUFFER_BIT);
 	Rect text;
@@ -287,7 +292,8 @@ void endGameScreen()
 	// Wait for the printed message to be read
 	//sleep(1);
 	next_level++;
-	//Game_mode = MENU;
+	//Game_mode = 0;
+	//cout << Game_mode << " " << endl;
 	return;
 }
 
@@ -316,7 +322,7 @@ void displayMenu(int yrespos, int xrespos)
 	glTranslatef(-70,60,0);
 		//angle = angle + 2.5;
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
-	glTranslatef(xrespos/HALVED, yrespos/HALVED, 0);
+	glTranslatef(xrespos/HALVED, yrespos/HALVED +47, 0);
 		//angle = angle + 2.5;
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
@@ -353,7 +359,7 @@ double angelsTimer(int inputx, int inputy)
 	}
 	clock_gettime(CLOCK_REALTIME, &ftimeEnd);
 	my_timer += timeDiff(&ftimeStart, &ftimeEnd);
-	void timerBox(int,int);
+	void timerBox(int&,int&);
 	timerBox(inputx,inputy);
 	Rect z;
 	z.bot = inputy-34;
@@ -367,7 +373,7 @@ double angelsTimer(int inputx, int inputy)
 	return my_timer;
 }
 
-void timerBox(int x,int y)
+void timerBox(int &x,int &y)
 {
 	static float angle = 0.0;
 	// red grn blu

@@ -37,12 +37,9 @@ using namespace std;
 
 // These lines were 'merged' from Abdullah's original main.cpp file
 #include "Common.h"
-//#include "angelR.cpp"
 #include "angelR.h"
-//#include "nygelA.cpp"
 #include "nygelA.h"
 //#include "abdullahA.h"
-//#include "christy.cpp"
 #include "christy.h"
 
 
@@ -86,6 +83,7 @@ extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 extern int zombie_pos;
+extern int zombie_kills;
 extern int next_level;
 extern int wave_count;
 extern string POW;
@@ -100,13 +98,14 @@ extern string EMPTYH;
 extern int HEALTHOFFSET;
 extern int HEALTHPOS;
 extern int HALVED;
+extern bool Next;
+extern int Game_mode;
 
 //-------------------------------------------------------------------------
 
 class Global {
 public:
-	int Game_mode, State, counter, zombie_kills;// zombie_pos;
-	bool Next;
+	int /*Game_mode,*/State, counter;
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
@@ -340,7 +339,7 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
-void resetKillCount();
+void resetKillCount(int&);
 void incrementWave();
 void resetWave();
 void displayWave(int,int);
@@ -353,7 +352,6 @@ void powText();
 void printWelcome();
 float initZombiePosition(int,int&);
 double angelsTimer(int,int);
-void timerBox(int,int);
 void displayMenu(int,int);
 void pauseGame(int,int);
 void endGameScreen();
@@ -368,9 +366,7 @@ int main()
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
-
 	while (!done) {
-		
 	    	while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
@@ -379,16 +375,19 @@ int main()
 		}
 		physics();
 		// Check to see if end of game (max zombies killed)
-		/*if (gl.counter == 5) {
-			changeBoolean(gl.Next);
-			cout << gl.Next << endl;
+		if (gl.counter == 5) {
+			changeBoolean(Next);
+			//cout << "BEFORE RESET next:" << Next << endl;
 			gl.counter = 0;
-		} if (gl.zombie_kills == 5 && gl.Next == 1) {
+		} if (zombie_kills == 5 && Next == 1) {
 			endGameScreen();
-			cout << "inside ending " << gl.Next << endl;
-		} else {*/
+			//Game_mode = 3;
+			//endTheGame(zombie_kills,Next,Game_mode);
+			//cout << " AFTER RESET next:" << Next << endl;
+			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
+		} else {
 			render();
-		//}
+		}
 		x11.swapBuffers();
 	}
 	// cleanup_fonts();
@@ -585,17 +584,20 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_space:
-			gl.Game_mode = 2;
+			Game_mode = 2;
 			break;
 		case XK_p:
-			gl.Game_mode = 1;
+			Game_mode = 1;
 			break;
 		case XK_o:
-			endTheGame(gl.zombie_kills);
+			//cout << "BEFORE zombiekills(o)reset:" <<zombie_kills <<endl;
+			endTheGame(zombie_kills,Next,Game_mode);
+			/*cout <<"Game mode: " << Game_mode << " "
+			<< "Zombie Kills: " << zombie_kills << " "
+			<< "Next bool: " << Next << endl;*/
 			break;
 		case XK_i:
 			// Angel testing something
-			//State = THREE4s;
 			statePlayerDead(gl.State);
 			//gl.State = 1;
 			//cout << "State(health) changed to 3/4s" << gl.State << endl;
@@ -726,7 +728,7 @@ void physics()
 	//
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
-	switch (gl.Game_mode) {
+	switch (Game_mode) {
 		case 0:
 			break;
 		case 1:
@@ -753,6 +755,10 @@ void physics()
 			}//end of while
 			break;
 		case 2:
+			//Game_mode set to PAUSED
+			break;
+		case 3:
+			//Game_mode set to END
 			break;
 	// end of Switch
 	}
@@ -806,7 +812,7 @@ void physics()
 					// increment a destroyed asteroid
 					g.nastdestroyed++;
 					// Follow 2 lines are used as tracking numbers
-					incrementZombiesKilled(gl.zombie_kills);
+					incrementZombiesKilled(zombie_kills);
 					gl.counter++;
 				}
 				//delete the bullet...
@@ -914,7 +920,7 @@ void render()
 		glEnd();
 		++b;
 		}
-	switch (gl.Game_mode) {
+	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
 		case 1:
 			// nygel timer
@@ -938,7 +944,7 @@ void render()
 			r.left = 10;
 			r.center = 0;
 			// Lets display our kills and Wave number.
-			zombieKillCount(gl.yres,gl.zombie_kills);
+			zombieKillCount(gl.yres,zombie_kills);
 			displayWave(gl.yres,10);
 			//
 			ggprint8b(&r, 16, red, "Castle Survivor!");
@@ -1056,6 +1062,9 @@ void render()
 			break;
 		case 2:
 			pauseGame(gl.xres, gl.yres);
+			break;
+		case 3:
+			endGameScreen();	
 			break;
 	}
 	
