@@ -332,7 +332,7 @@ void displayMenu(int yrespos, int xrespos)
 	glEnd();
 	glPopMatrix();
 	glColor3f(1.0f, 0.0f, 0.0f);
-	menu.bot = yrespos - 275;
+	menu.bot = yrespos - 274;
 	menu.left = xrespos/HALVED;
 	menu.center = 1;
 	ggprint8b(&menu, 16, yellow, "P - Play");
