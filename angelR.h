@@ -14,10 +14,12 @@ void displayMenu(int,int);
 void pauseGame(int,int);
 void endGameScreen();
 void endTheGame(int&,bool&,int&);
+void startOver(int&,int&,int&);
 void stateHitOnce(int&);
 void stateHitTwice(int&);
 void stateHitThrice(int&);
 void statePlayerDead(int&);
+void gameOver(int,int);
 extern int zombie_pos;
 
 #endif

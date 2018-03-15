@@ -100,12 +100,13 @@ extern int HEALTHPOS;
 extern int HALVED;
 extern bool Next;
 extern int Game_mode;
+extern int State;
 
 //-------------------------------------------------------------------------
 
 class Global {
 public:
-	int /*Game_mode,*/State, counter;
+	int counter;
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
@@ -355,6 +356,7 @@ double angelsTimer(int,int);
 void displayMenu(int,int);
 void pauseGame(int,int);
 void endGameScreen();
+void gameOver(int,int);
 
 //=========================================================================
 // M A I N
@@ -381,8 +383,6 @@ int main()
 			gl.counter = 0;
 		} if (zombie_kills == 5 && Next == 1) {
 			endGameScreen();
-			//Game_mode = 3;
-			//endTheGame(zombie_kills,Next,Game_mode);
 			//cout << " AFTER RESET next:" << Next << endl;
 			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
 		} else {
@@ -598,9 +598,14 @@ int check_keys(XEvent *e)
 			break;
 		case XK_i:
 			// Angel testing something
-			statePlayerDead(gl.State);
+			//statePlayerDead(gl.State);
 			//gl.State = 1;
 			//cout << "State(health) changed to 3/4s" << gl.State << endl;
+			State = 4;
+			Game_mode = 4;
+			break;
+		case XK_t:
+			startOver(zombie_kills,State,Game_mode);
 			break;
 		case XK_u:
 			break;
@@ -758,7 +763,10 @@ void physics()
 			//Game_mode set to PAUSED
 			break;
 		case 3:
-			//Game_mode set to END
+			//Game_mode set to WIN
+			break;
+		case 4:
+			//Game_mode set to GAMEOVER
 			break;
 	// end of Switch
 	}
@@ -931,14 +939,14 @@ void render()
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
 			//-------------christy timer-----
 			//
-			//timer();
+			timer();
 			//----------- christy printname---
 			void printName();
 			//
 			printName();
 			//-------------------------------
 			
-			playerState(gl.State,gl.yres,gl.xres);
+			playerState(State,gl.yres,gl.xres);
 			Rect r;
 			r.bot = gl.yres - 20;
 			r.left = 10;
@@ -1065,6 +1073,9 @@ void render()
 			break;
 		case 3:
 			endGameScreen();	
+			break;
+		case 4:
+			gameOver(gl.xres, gl.yres);	
 			break;
 	}
 	
