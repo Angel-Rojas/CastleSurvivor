@@ -66,6 +66,7 @@ typedef Flt	Matrix[4][4];
 #define PI 3.141592653589793
 #define ALPHA 1
 #define red 0x00ff0000
+#define PROFILING_ON
 
 //commonly used 'magic numbers'
 const float RIGHT_ANGLE = 90.0;
@@ -939,13 +940,16 @@ void render()
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
 			//-------------christy timer-----
 			//
+			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();
+			
 			//----------- christy printname---
 			void printName();
 			//
 			printName();
 			//-------------------------------
-			
+			#endif
+
 			playerState(State,gl.yres,gl.xres);
 			Rect r;
 			r.bot = gl.yres - 20;
