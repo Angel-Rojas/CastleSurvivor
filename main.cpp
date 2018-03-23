@@ -359,6 +359,7 @@ void displayMenu(int,int);
 void pauseGame(int,int);
 void endGameScreen();
 void gameOver(int,int);
+void showCredits(int,int);
 
 //=========================================================================
 // M A I N
@@ -611,6 +612,9 @@ int check_keys(XEvent *e)
 			break;
 		case XK_u:
 			break;
+		case XK_c:
+			Game_mode = 5;
+			break;
 		case XK_m:
 			// Angel testing something
 			//Game_mode = MENU;
@@ -769,6 +773,9 @@ void physics()
 			break;
 		case 4:
 			//Game_mode set to GAMEOVER
+			break;
+		case 5:
+			//Game_mode set to CREDITS
 			break;
 	// end of Switch
 	}
@@ -1084,6 +1091,9 @@ void render()
 			break;
 		case 4:
 			gameOver(gl.xres, gl.yres);	
+			break;
+		case 5:
+			showCredits(gl.yres, gl.xres);	
 			break;
 	}
 	
