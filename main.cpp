@@ -102,7 +102,8 @@ extern int HALVED;
 extern bool Next;
 extern int Game_mode;
 extern int State;
-
+extern int actualHealth;
+extern int castleHealth;
 //-------------------------------------------------------------------------
 
 class Global {
@@ -191,16 +192,26 @@ public:
 		//build 15 asteroids...
 		for (int j=0; j<15; j++) {
 			Asteroid *a = new Asteroid;
-			a->nverts = 8;
-			a->radius = rnd()*80.0 + 40.0;
-			Flt r2 = a->radius / 2.0;
-			Flt angle = 0.0f;
-			Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			for (int i=0; i<a->nverts; i++) {
+			a->nverts = 4;
+			//a->radius = 80.0 + 40.0;
+			//Flt r2 = a->radius / 2.0;
+			//Flt angle = 90.0f;
+			//Flt inc = (PI * 2.0) / (Flt)a->nverts;
+			/*for (int i=0; i<a->nverts; i++) {
 				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
-			}
+			}*/
+			//zombies are 30 wide x 70 high
+			a->vert[0][0] = 0;
+			a->vert[0][1] = 0;
+			a->vert[1][0] = 30;
+			a->vert[1][1] = 0;
+			a->vert[2][0] = 30;
+			a->vert[2][1] = 70;
+			a->vert[3][0] = 0;
+			a->vert[3][1] = 70;
+			//-----------------------
 			initZombiePosition(gl.xres,zombie_pos);
 			a->pos[ZERO] = zombie_pos;
 			a->pos[1] = (Flt)(rand() % gl.yres);
@@ -350,6 +361,8 @@ void displayHealth(int,int,int);
 void playerState(int,int,int);
 extern void timerN(double);
 extern bool waveCountDown(int,int);
+extern int attackLoop(int,int);
+extern int castleHealthToSates(int,int);
 double timer();
 void powText();
 void printWelcome();
@@ -746,6 +759,16 @@ void physics()
 			while (a) {
 				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 				a->pos[0] += a->vel[0];
+				//this line will keep zombies from moving too the end
+				if (a->pos[0] <= 100) {
+				 a->pos[0] = 100;
+		// change the players health here
+		//loop for all zombies at the a->pos[0] to attack castle
+		//sleep the attack loop for a bit
+		//maybe call a function that does a countdown loop before it does the attack loop
+				State =  attackLoop(1,State);
+				playerState(State,gl.xres,gl.yres);
+				}
 				//a->pos[1] += a->vel[1];
 				//Check for collision with window edges
 				if (a->pos[0] < -100.0) {
