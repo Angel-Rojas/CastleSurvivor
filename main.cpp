@@ -102,7 +102,8 @@ extern int HALVED;
 extern bool Next;
 extern int Game_mode;
 extern int State;
-
+extern int actualHealth;
+extern int castleHealth;
 //-------------------------------------------------------------------------
 
 class Global {
@@ -360,6 +361,8 @@ void displayHealth(int,int,int);
 void playerState(int,int,int);
 extern void timerN(double);
 extern bool waveCountDown(int,int);
+extern int attackLoop(int,int);
+extern int castleHealthToSates(int,int);
 double timer();
 void powText();
 void printWelcome();
@@ -759,10 +762,12 @@ void physics()
 				//this line will keep zombies from moving too the end
 				if (a->pos[0] <= 100) {
 				 a->pos[0] = 100;
-		//angel change the players health here
+		// change the players health here
 		//loop for all zombies at the a->pos[0] to attack castle
 		//sleep the attack loop for a bit
 		//maybe call a function that does a countdown loop before it does the attack loop
+				State =  attackLoop(1,State);
+				playerState(State,gl.xres,gl.yres);
 				}
 				//a->pos[1] += a->vel[1];
 				//Check for collision with window edges
