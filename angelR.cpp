@@ -420,6 +420,11 @@ double angelsTimer(int inputx, int inputy)
 	z.left = inputx-85;
 	z.center = 0;
 	ggprint8b(&z, 16, yellow, "%lf", my_timer); 
+	z.bot = inputy-54;
+	z.left = inputx-115;
+	z.center = 1;
+	ggprint8b(&z, 16, yellow, "<spacebar> PAUSE");
+	
 	return my_timer;
 }
 
