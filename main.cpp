@@ -349,6 +349,7 @@ bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
 extern void timerN(double);
+extern bool waveCountDown(int,int);
 double timer();
 void powText();
 void printWelcome();
@@ -933,11 +934,14 @@ void render()
 		// The below case is the MAIN RENDER function
 		case 1:
 			// nygel timer
-			timerN(0);
+			//timerN(0);
 			//------------christy header------
 			void header(int , int, int, int);
 			//
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
+			//wave timer -- nygel?
+			if (waveCountDown(gl.xres,gl.yres) == false)
+			    Game_mode = 2;
 			//-------------christy timer-----
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name

@@ -45,3 +45,24 @@ void timerN (double ts)
     ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",(timeLeft-randomMath()));
 }
 
+bool waveCountDown (int xres, int yres)
+{
+    //smallest time unti 10^-9s
+    //timer is 2mins
+  //  randomMath();
+  
+
+    static double timeLeft = 6000;
+    Rect r; 
+    r.bot = yres-100;
+    r.left = xres/2;
+    r.center = 0;
+    ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",timeLeft);
+    timeLeft--;
+    if(timeLeft == 0 ){
+	timeLeft = 6000;
+	return false;
+    }
+    else
+	return true;
+}
