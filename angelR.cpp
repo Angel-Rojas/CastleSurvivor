@@ -49,29 +49,29 @@ static double my_timer = 0.0;
 
 // enumerator of Health Bars.
 enum HealthBar {
-	FULL=0,
-	THREE4s=1,
-	HALF=2,
-	QUARTER=3,
-	EMPTY=4
+	FULL,
+	THREE4s,
+	HALF,
+	QUARTER,
+	EMPTY
 };
 
 // enumerator of Games' States.
 enum HealthStates {
-	HEALTHY=0,
-	HITONCE=1,
-	HITTWICE=2,
-	HITTHRICE=3,
-	DEAD=4
+	HEALTHY,
+	HITONCE,
+	HITTWICE,
+	HITTHRICE,
+	DEAD
 };
 
 enum GameMode {
-	MENU=0,
-	PLAY=1,
-	PAUSED=2,
-	WIN=3,
-	GAMEOVER=4,
-	CREDITS=5
+	MENU,
+	PLAY,
+	PAUSED,
+	WIN,
+	GAMEOVER,
+	CREDITS
 };
 
 // Function that actually displays player health bar.
@@ -454,26 +454,101 @@ void timerBox(int &x,int &y)
 void showCredits(int yres, int xres)
 {
 	if (Game_mode != 1) {
+	static float angle = 0.0;
+	//static float bounce = 0.0;
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	Rect c;
 	c.bot = yres - 215;
 	c.left = xres/HALVED;
 	c.center = 1;
-	ggprint8b(&c, 16, yellow, "CREDITS:");
-	//
-	static float angle = 0.0;
+	ggprint8b(&c, 16, navy_green, "CREDITS:");
 	xPosition = xres/HALVED - 70;
 	yPosition = yres/HALVED + 107;
-	glColor3ub(100, 150 ,150);
+	//	
 	glPushMatrix();
-	glTranslatef(xPosition, angle, 0); // angle makes it scroll
-		angle = angle + 0.5;
+	glColor3ub(80, 40 ,50);
+	//glTranslatef(angle, angle, 0);
+	glColor3ub(100, 150 ,150);
+	for (int i=0; i<6; i++) {
+	glTranslatef(angle, angle, 0); // angle makes it scroll
 	glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
+	glBegin(GL_TRIANGLES);
+		glVertex2f(-12.0f,	-10.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(12.0f,	-10.0f);
+	glEnd();
+	}
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3ub(80, 40 ,50);
+	glTranslatef(xPosition, angle, 0); // angle makes it scroll
+		angle = angle + 1.5;
+	if (angle >= yres + 60) {
+		angle = 0;
+	}
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
 		glVertex2i(0,	25);
 		glVertex2i(150,	25);
 		glVertex2i(150,	0);
 	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	Rect names;
+	names.bot = -144;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Christy Guerrero");
+	names.bot = -94;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Abdullah Aljadahli");
+	names.bot = -44;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Nygel Aton");
+	names.bot = 8;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Angel Rojas");
+	
+	glColor3ub(20, 60 ,90);
+	for (int i=0; i<6; i++) { 
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(angle, 0, 0);
+	glBegin(GL_TRIANGLES);
+		glVertex2f(-12.0f,	-10.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(12.0f,	-10.0f);
+	glEnd();
+	glTranslatef(0, 0, 0);
+	} 
 	glPopMatrix();
 	} else
 		cout << "Bad State: you are currently playing..." << endl;
