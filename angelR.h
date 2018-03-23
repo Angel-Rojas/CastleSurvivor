@@ -20,6 +20,7 @@ void stateHitTwice(int&);
 void stateHitThrice(int&);
 void statePlayerDead(int&);
 void gameOver(int,int);
+void showCredits(int,int);
 extern int zombie_pos;
 
 #endif

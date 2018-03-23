@@ -365,9 +365,27 @@ void displayMenu(int yrespos, int xrespos)
 	//menu.bot = yrespos - 274;
 	//menu.left = xrespos/HALVED;
 	menu.bot = yPosition + 8;
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(xPosition, yPosition-50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glPopMatrix();
+	glColor3f(1.0f, 0.0f, 0.0f);
 	menu.left = xPosition + 70;
 	menu.center = 1;
 	ggprint8b(&menu, 16, yellow, "P - Play");
+	glColor3f(1.0f, 0.0f, 0.0f);
+	Rect credits;
+	credits.bot = yPosition-42;
+	credits.left = xPosition + 70;
+	credits.center = 1;
+	ggprint8b(&credits, 16, yellow, "C - View Credits");
 	return;
 }
 
@@ -413,10 +431,7 @@ void timerBox(int &x,int &y)
 	glColor3ub(100, 150 ,150);
 	glPushMatrix();
 	glTranslatef( x-175,y - 40,0);
-		//angle = angle + 2.5;
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
-	//glTranslatef(-50, -50, 0);
-		//angle = angle + 2.5;
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
 		glVertex2i(0,	25);
@@ -433,7 +448,35 @@ void timerBox(int &x,int &y)
 	p.left = x-200;
 	p.center = 1;
 	ggprint8b(&p, 16, yellow, "%lf", my_timer);
-	glPopMatrix(); // maybe problem
+	glPopMatrix(); 
+}
+
+void showCredits(int yres, int xres)
+{
+	if (Game_mode != 1) {
+	Rect c;
+	c.bot = yres - 215;
+	c.left = xres/HALVED;
+	c.center = 1;
+	ggprint8b(&c, 16, yellow, "CREDITS:");
+	//
+	static float angle = 0.0;
+	xPosition = xres/HALVED - 70;
+	yPosition = yres/HALVED + 107;
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	glTranslatef(xPosition, angle, 0); // angle makes it scroll
+		angle = angle + 0.5;
+	glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glPopMatrix();
+	} else
+		cout << "Bad State: you are currently playing..." << endl;
 }
 
 void stateHitOnce(int &state)
