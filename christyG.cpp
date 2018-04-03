@@ -4,7 +4,7 @@
 //christy.cpp
 
 //#include "Common.h"
-#include "christy.h"
+#include "christyG.h"
 //#include "fonts.h"
 #include <GL/glx.h>
 #include <time.h>
@@ -13,7 +13,6 @@
 #include "fonts.h"
 using namespace std;
 
-//const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
