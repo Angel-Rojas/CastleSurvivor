@@ -40,7 +40,7 @@ using namespace std;
 #include "angelR.h"
 #include "nygelA.h"
 //#include "abdullahA.h"
-#include "christy.h"
+#include "christyG.h"
 
 
 //defined types
@@ -948,8 +948,10 @@ void render()
 			displayWave(gl.yres,10);
 			//
 			ggprint8b(&r, 16, red, "Castle Survivor!");
-			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-			// //ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i", g.nastdestroyed);
+			// //ggprint8b(&r, 16, 0x00ffff00, 
+            //"n asteroids: %i", g.nasteroids);
+			// //ggprint8b(&r, 16, 0x00ffff00, 
+            //"n asteroids destroyed: %i", g.nastdestroyed);
 			// //
 			//-------------
 			//Draw the ship
