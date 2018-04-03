@@ -7,6 +7,10 @@
 #include "nygelA.h"
 #include "fonts.h"
 #include <ctime>
+//globals
+int castleHealth;
+int actualHealth;
+
 void hello()
 {
     cout << "Hello World!" << endl;
@@ -44,4 +48,61 @@ void timerN (double ts)
     ggprint8b(&r, 16, 0x00ff0000,"TIME : %lf",(randomMath()));
     ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",(timeLeft-randomMath()));
 }
+
+bool waveCountDown (int xres, int yres)
+{
+    //smallest time unti 10^-9s
+    //timer is 2mins
+  //  randomMath();
+  
+
+    static double timeLeft = 6000;
+    Rect r; 
+    r.bot = yres-100;
+    r.left = xres/2;
+    r.center = 0;
+    ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",timeLeft);
+    timeLeft--;
+    if(timeLeft == 0 ){
+	timeLeft = 6000;
+	return false;
+    }
+    else
+	return true;
+}
+
+int castleHealthToStates(int ch,int fullCh)
+{
+    //ch is castle health its the one actually decreasing
+    //fullCH is castle health if full, should never change
+    //full-75% health
+    if(ch >(fullCh/75))
+	return 1;
+    //75-50% health
+    else if((fullCh/75) >= ch || ch > 50)
+	return 2;
+    //50-25% health
+    else if((fullCh/50) >= ch || ch > 25)
+	return 3;
+    //dead
+    else
+	return 4;
+}
+
+int attackLoop(int zombies,int state)
+{
+    
+    //attack loop
+    for(int i = 0; i < zombies; i++){
+	actualHealth -= 5;
+	state = castleHealthToStates(castleHealth,actualHealth);
+    }
+    //random math function to slow down so act as a sleep
+    int x = 100;
+    for (int i=0; i < 3000; i++){
+	x = x % 3 * 1.24 + 76.0 * x;
+    }
+    return state;
+}
+	
 

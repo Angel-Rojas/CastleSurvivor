@@ -13,6 +13,9 @@
 #include "fonts.h"
 using namespace std;
 
+
+//#define PROFILINGC_ON
+//const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
@@ -65,17 +68,18 @@ void drawBox(int x, int y)
 
 }
 
+//#ifdef PROFILINGC_OFF
 double timer() 
-{
+{	
 	static double t = 0.0;
 	struct timespec ftimeStart, ftimeEnd;
 	clock_gettime(CLOCK_REALTIME, &ftimeStart);
 	//int a = 200, b=300, c= 400;
-	/*for(int i=0: i<10; i++){
-		b=(a&15) - (b&7) - (c&3);
-		c=(b&31) - (a&7) - (c&3);
-	}
-	*/
+	//for(int i=0: i<10; i++){
+	//	b=(a&15) - (b&7) - (c&3);
+	//	c=(b&31) - (a&7) - (c&3);
+	//}
+	
 	printName();
 	clock_gettime(CLOCK_REALTIME, &ftimeEnd);
 	t += timeDiff(&ftimeStart, &ftimeEnd);
@@ -87,5 +91,6 @@ double timer()
 	ggprint8b(&time, 16, 0x00ffff00, "Timer: %f", t);
 	return t;
 }
+//#endif 
 
 

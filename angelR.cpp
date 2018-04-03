@@ -18,18 +18,23 @@ static string POW = "Pow!";
 static int YOFFSET = 31;
 static int MOREYOFFSET = 41;
 static int XOFFSET = 50;
-static string FULLH = "[====>]";
-static string THREE4sH = "[===>  ]";
-static string HALFH = "[==>   ]";
-static string QUARTERH = "[=>    ]";
-static string EMPTYH = "[       ]";
+static char FULLH[10] = "[====>]";
+static char THREE4sH[10] = "[===>  ]";
+static char HALFH[10] = "[==>   ]";
+static char QUARTERH[10] = "[=>    ]";
+static char EMPTYH[10] = "[       ]";
+static char deadStr[50] = "You haven't lost all of your health...";
 static int HEALTHOFFSET = 40;
 static int HEALTHPOS = 11;
 static int HALVED = 2;
+static int xPosition = 0;
+static int yPosition = 0;
 #define blue 0x3b5998
 #define lt_blue 0x87cefa
 #define red 0x00ff0000
 #define yellow 0x00ffff00
+#define gold 0xc9ae59
+#define navy_green 0x88b985
 
 // Global Variables
 int zombie_kills = 0;
@@ -38,34 +43,35 @@ static int next_level = 1;
 static int wave_count = 1;
 static int counter = 0;
 bool Next = false;
-static int State = 0;
+int State = 0;
 int Game_mode = 0;
 static double my_timer = 0.0;
 
 // enumerator of Health Bars.
 enum HealthBar {
-	FULL=0,
-	THREE4s=1,
-	HALF=2,
-	QUARTER=3,
-	EMPTY=4
+	FULL,
+	THREE4s,
+	HALF,
+	QUARTER,
+	EMPTY
 };
 
 // enumerator of Games' States.
 enum HealthStates {
-	HEALTHY=0,
-	HITONCE=1,
-	HITTWICE=2,
-	HITTHRICE=3,
-	DEAD=4
+	HEALTHY,
+	HITONCE,
+	HITTWICE,
+	HITTHRICE,
+	DEAD
 };
 
 enum GameMode {
-	MENU=0,
-	PLAY=1,
-	PAUSED=2,
-	END=3,
-	CREDITS=4
+	MENU,
+	PLAY,
+	PAUSED,
+	WIN,
+	GAMEOVER,
+	CREDITS
 };
 
 // Function that actually displays player health bar.
@@ -84,8 +90,7 @@ void displayHealth(int input,int ypos, int xpos)
 			text.bot = ypos - 20;
 			text.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			text.center = 0;
-			ggprint8b(&text, 16, red, "%s", &FULLH);
-			//ggprint8b(&text, 16, red, "[====>]");
+			ggprint8b(&text, 16, red, "%s", FULLH);
 			break;
 		//case THREE4s:
 		case 1:
@@ -97,7 +102,7 @@ void displayHealth(int input,int ypos, int xpos)
 			a.bot = ypos - 20;
 			a.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			a.center = 0;
-			ggprint8b(&a, 16, red, "%s", &THREE4sH);
+			ggprint8b(&a, 16, red, "%s", THREE4sH);
 			break;
 		//case HALF:
 		case 2:
@@ -109,7 +114,7 @@ void displayHealth(int input,int ypos, int xpos)
 			b.bot = ypos - 20;
 			b.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			b.center = 0;
-			ggprint8b(&b, 16, red, "%s", &HALFH);
+			ggprint8b(&b, 16, red, "%s", HALFH);
 			break;
 		//case QUARTER:
 		case 3:
@@ -121,7 +126,7 @@ void displayHealth(int input,int ypos, int xpos)
 			c.bot = ypos - 20;
 			c.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			c.center = 0;
-			ggprint8b(&c, 16, red, "%s", &QUARTERH);
+			ggprint8b(&c, 16, red, "%s", QUARTERH);
 			break;
 		//case EMPTY:
 		case 4:
@@ -133,7 +138,7 @@ void displayHealth(int input,int ypos, int xpos)
 			d.bot = ypos - 20;
 			d.left = (xpos / HEALTHPOS) + HEALTHOFFSET;
 			d.center = 0;
-			ggprint8b(&d, 16, red, "%s", &EMPTYH);
+			ggprint8b(&d, 16, red, "%s", EMPTYH);
 			break;
 
 		default: 
@@ -216,6 +221,20 @@ void pauseGame(int xrespos, int yrespos)
     return;
 }
 
+// Screen for a Game Over.
+void gameOver(int xrespos, int yrespos)
+{
+	//Game_mode = END;
+	Game_mode = 4;
+	Rect text;
+	text.bot = yrespos - 190;
+	text.left = xrespos/HALVED;
+	text.center = 1;
+	ggprint8b(&text, 16, red, "Game OVER!");
+	ggprint8b(&text, 16, gold, "T - Try again sadface");
+    return;
+}
+
 void powText()
 {
     cout << POW << endl;
@@ -277,22 +296,32 @@ void endTheGame(int &zombieKills,bool &next,int &gamemode)
 		cout << "You're not done killin' yet!" << endl;
 }
 
+// This func. will start us over if we died
+void startOver(int &zombieKills,int &state,int &gamemode)
+{
+	if (state == 4) {
+		resetKillCount(zombie_kills);
+		gamemode = 0;
+	} else
+		cout << deadStr << endl;
+}
+
 // 'endGameScreen()' prints the end game screen.
 void endGameScreen()
 {
 	//next_level = 2;
 	glClear(GL_COLOR_BUFFER_BIT);
 	Rect text;
-	text.bot = 900 / 2;
-	text.left = 1250 / 2;
-	text.center = 1;
+	text.bot = 900 / 1.7;
+	text.left = 1250 / 2.1;
+	text.center = 0;
 	//ggprint8b(&text, 16, yellow, "NEXT LEVEL: %i", next_level);
 	ggprint8b(&text, 16, yellow, "YOU WIN! :)");
 	ggprint8b(&text, 16, yellow, "O - Okay, coolbeans");
 	// Wait for the printed message to be read
 	//sleep(1);
 	next_level++;
-	//Game_mode = 0;
+	Game_mode = 3;
 	//cout << Game_mode << " " << endl;
 	return;
 }
@@ -311,18 +340,18 @@ void checkNextLevel()
 void displayMenu(int yrespos, int xrespos)
 {
 	Rect menu;
-	menu.bot = yrespos - 190;
+	menu.bot = yrespos - 215;
 	menu.left = xrespos/HALVED;
 	menu.center = 1;
 	ggprint8b(&menu, 16, yellow, "Game Menu");
 	//
 	static float angle = 0.0;
+	xPosition = xrespos/HALVED - 70;
+	yPosition = yrespos/HALVED + 107;
 	glColor3ub(100, 150 ,150);
 	glPushMatrix();
-	glTranslatef(-70,60,0);
-		//angle = angle + 2.5;
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
-	glTranslatef(xrespos/HALVED, yrespos/HALVED +47, 0);
+	glTranslatef(xPosition, yPosition, 0);
 		//angle = angle + 2.5;
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
@@ -332,10 +361,31 @@ void displayMenu(int yrespos, int xrespos)
 	glEnd();
 	glPopMatrix();
 	glColor3f(1.0f, 0.0f, 0.0f);
-	menu.bot = yrespos - 275;
-	menu.left = xrespos/HALVED;
+	// The following lines will align Menu Screen for Mac display
+	//menu.bot = yrespos - 274;
+	//menu.left = xrespos/HALVED;
+	menu.bot = yPosition + 8;
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(xPosition, yPosition-50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glPopMatrix();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	menu.left = xPosition + 70;
 	menu.center = 1;
 	ggprint8b(&menu, 16, yellow, "P - Play");
+	glColor3f(1.0f, 0.0f, 0.0f);
+	Rect credits;
+	credits.bot = yPosition-42;
+	credits.left = xPosition + 70;
+	credits.center = 1;
+	ggprint8b(&credits, 16, yellow, "C - View Credits");
 	return;
 }
 
@@ -370,6 +420,11 @@ double angelsTimer(int inputx, int inputy)
 	z.left = inputx-85;
 	z.center = 0;
 	ggprint8b(&z, 16, yellow, "%lf", my_timer); 
+	z.bot = inputy-54;
+	z.left = inputx-115;
+	z.center = 1;
+	ggprint8b(&z, 16, yellow, "<spacebar> PAUSE");
+	
 	return my_timer;
 }
 
@@ -381,10 +436,7 @@ void timerBox(int &x,int &y)
 	glColor3ub(100, 150 ,150);
 	glPushMatrix();
 	glTranslatef( x-175,y - 40,0);
-		//angle = angle + 2.5;
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
-	//glTranslatef(-50, -50, 0);
-		//angle = angle + 2.5;
 	glBegin(GL_QUADS);
 		glVertex2i(0,	0);
 		glVertex2i(0,	25);
@@ -401,7 +453,110 @@ void timerBox(int &x,int &y)
 	p.left = x-200;
 	p.center = 1;
 	ggprint8b(&p, 16, yellow, "%lf", my_timer);
-	glPopMatrix(); // maybe problem
+	glPopMatrix(); 
+}
+
+void showCredits(int yres, int xres)
+{
+	if (Game_mode != 1) {
+	static float angle = 0.0;
+	//static float bounce = 0.0;
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	Rect c;
+	c.bot = yres - 215;
+	c.left = xres/HALVED;
+	c.center = 1;
+	ggprint8b(&c, 16, navy_green, "CREDITS:");
+	xPosition = xres/HALVED - 70;
+	yPosition = yres/HALVED + 107;
+	//	
+	glPushMatrix();
+	glColor3ub(80, 40 ,50);
+	//glTranslatef(angle, angle, 0);
+	glColor3ub(100, 150 ,150);
+	for (int i=0; i<6; i++) {
+	glTranslatef(angle, angle, 0); // angle makes it scroll
+	glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
+	glBegin(GL_TRIANGLES);
+		glVertex2f(-12.0f,	-10.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(12.0f,	-10.0f);
+	glEnd();
+	}
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3ub(80, 40 ,50);
+	glTranslatef(xPosition, angle, 0); // angle makes it scroll
+		angle = angle + 1.5;
+	if (angle >= yres + 60) {
+		angle = 0;
+	}
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glTranslatef(0, 50, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	Rect names;
+	names.bot = -144;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Christy Guerrero");
+	names.bot = -94;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Abdullah Aljadahli");
+	names.bot = -44;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Nygel Aton");
+	names.bot = 8;
+	names.left = 70;
+	names.center = 1;
+	ggprint8b(&names, 16, gold, "Angel Rojas");
+	
+	glColor3ub(20, 60 ,90);
+	for (int i=0; i<6; i++) { 
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(angle, 0, 0);
+	glBegin(GL_TRIANGLES);
+		glVertex2f(-12.0f,	-10.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	-6.0f);
+		glVertex2f(0.0f,	20.0f);
+		glVertex2f(12.0f,	-10.0f);
+	glEnd();
+	glTranslatef(0, 0, 0);
+	} 
+	glPopMatrix();
+	} else
+		cout << "Bad State: you are currently playing..." << endl;
 }
 
 void stateHitOnce(int &state)

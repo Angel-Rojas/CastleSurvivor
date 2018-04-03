@@ -66,6 +66,7 @@ typedef Flt	Matrix[4][4];
 #define PI 3.141592653589793
 #define ALPHA 1
 #define red 0x00ff0000
+#define PROFILING_ON
 
 //commonly used 'magic numbers'
 const float RIGHT_ANGLE = 90.0;
@@ -100,12 +101,14 @@ extern int HEALTHPOS;
 extern int HALVED;
 extern bool Next;
 extern int Game_mode;
-
+extern int State;
+extern int actualHealth;
+extern int castleHealth;
 //-------------------------------------------------------------------------
 
 class Global {
 public:
-	int /*Game_mode,*/State, counter;
+	int counter;
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
@@ -189,16 +192,26 @@ public:
 		//build 15 asteroids...
 		for (int j=0; j<15; j++) {
 			Asteroid *a = new Asteroid;
-			a->nverts = 8;
-			a->radius = rnd()*80.0 + 40.0;
-			Flt r2 = a->radius / 2.0;
-			Flt angle = 0.0f;
-			Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			for (int i=0; i<a->nverts; i++) {
+			a->nverts = 4;
+			//a->radius = 80.0 + 40.0;
+			//Flt r2 = a->radius / 2.0;
+			//Flt angle = 90.0f;
+			//Flt inc = (PI * 2.0) / (Flt)a->nverts;
+			/*for (int i=0; i<a->nverts; i++) {
 				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
-			}
+			}*/
+			//zombies are 30 wide x 70 high
+			a->vert[0][0] = 0;
+			a->vert[0][1] = 0;
+			a->vert[1][0] = 30;
+			a->vert[1][1] = 0;
+			a->vert[2][0] = 30;
+			a->vert[2][1] = 70;
+			a->vert[3][0] = 0;
+			a->vert[3][1] = 70;
+			//-----------------------
 			initZombiePosition(gl.xres,zombie_pos);
 			a->pos[ZERO] = zombie_pos;
 			a->pos[1] = (Flt)(rand() % gl.yres);
@@ -347,6 +360,9 @@ bool changeBoolean(bool&);
 void displayHealth(int,int,int);
 void playerState(int,int,int);
 extern void timerN(double);
+extern bool waveCountDown(int,int);
+extern int attackLoop(int,int);
+extern int castleHealthToSates(int,int);
 double timer();
 void powText();
 void printWelcome();
@@ -355,6 +371,8 @@ double angelsTimer(int,int);
 void displayMenu(int,int);
 void pauseGame(int,int);
 void endGameScreen();
+void gameOver(int,int);
+void showCredits(int,int);
 
 //=========================================================================
 // M A I N
@@ -381,8 +399,6 @@ int main()
 			gl.counter = 0;
 		} if (zombie_kills == 5 && Next == 1) {
 			endGameScreen();
-			//Game_mode = 3;
-			//endTheGame(zombie_kills,Next,Game_mode);
 			//cout << " AFTER RESET next:" << Next << endl;
 			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
 		} else {
@@ -598,11 +614,19 @@ int check_keys(XEvent *e)
 			break;
 		case XK_i:
 			// Angel testing something
-			statePlayerDead(gl.State);
+			//statePlayerDead(gl.State);
 			//gl.State = 1;
 			//cout << "State(health) changed to 3/4s" << gl.State << endl;
+			State = 4;
+			Game_mode = 4;
+			break;
+		case XK_t:
+			startOver(zombie_kills,State,Game_mode);
 			break;
 		case XK_u:
+			break;
+		case XK_c:
+			Game_mode = 5;
 			break;
 		case XK_m:
 			// Angel testing something
@@ -735,6 +759,16 @@ void physics()
 			while (a) {
 				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 				a->pos[0] += a->vel[0];
+				//this line will keep zombies from moving too the end
+				if (a->pos[0] <= 100) {
+				 a->pos[0] = 100;
+		// change the players health here
+		//loop for all zombies at the a->pos[0] to attack castle
+		//sleep the attack loop for a bit
+		//maybe call a function that does a countdown loop before it does the attack loop
+				State =  attackLoop(1,State);
+				playerState(State,gl.xres,gl.yres);
+				}
 				//a->pos[1] += a->vel[1];
 				//Check for collision with window edges
 				if (a->pos[0] < -100.0) {
@@ -758,7 +792,13 @@ void physics()
 			//Game_mode set to PAUSED
 			break;
 		case 3:
-			//Game_mode set to END
+			//Game_mode set to WIN
+			break;
+		case 4:
+			//Game_mode set to GAMEOVER
+			break;
+		case 5:
+			//Game_mode set to CREDITS
 			break;
 	// end of Switch
 	}
@@ -924,21 +964,27 @@ void render()
 		// The below case is the MAIN RENDER function
 		case 1:
 			// nygel timer
-			timerN(0);
+			//timerN(0);
 			//------------christy header------
 			void header(int , int, int, int);
 			//
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
+			//wave timer -- nygel?
+			if (waveCountDown(gl.xres,gl.yres) == false)
+			    Game_mode = 2;
 			//-------------christy timer-----
 			//
-			//timer();
+			#ifdef PROFILING_OFF //----turns of the timer are the print name
+			timer();
+			
 			//----------- christy printname---
 			void printName();
 			//
 			printName();
 			//-------------------------------
-			
-			playerState(gl.State,gl.yres,gl.xres);
+			#endif
+
+			playerState(State,gl.yres,gl.xres);
 			Rect r;
 			r.bot = gl.yres - 20;
 			r.left = 10;
@@ -1067,6 +1113,12 @@ void render()
 			break;
 		case 3:
 			endGameScreen();	
+			break;
+		case 4:
+			gameOver(gl.xres, gl.yres);	
+			break;
+		case 5:
+			showCredits(gl.yres, gl.xres);	
 			break;
 	}
 	
