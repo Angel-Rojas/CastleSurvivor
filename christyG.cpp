@@ -14,7 +14,7 @@
 using namespace std;
 
 
-//#define PROFILINGC_ON
+#define PROFILINGC_ON
 //const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
