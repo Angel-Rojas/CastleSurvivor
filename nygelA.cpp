@@ -23,21 +23,21 @@ double randomMath()
     struct timespec start,stop;
     static double b =0;
     clock_gettime(CLOCK_REALTIME, &start);
-    
+
     long int top = 10e11;
     for(int i =0;i<100;i++){
 	top/=7;
     }
-     clock_gettime(CLOCK_REALTIME, &stop); 
+    clock_gettime(CLOCK_REALTIME, &stop); 
     b += timeDiff(&start,&stop); 
-return b;
+    return b;
 }
 void timerN (double ts)
 {
     //smallest time unti 10^-9s
     //timer is 2mins
-  //  randomMath();
-  
+    //  randomMath();
+
 
     static double timeLeft = 1.2e11;
     Rect r; 
@@ -53,8 +53,8 @@ bool waveCountDown (int xres, int yres)
 {
     //smallest time unti 10^-9s
     //timer is 2mins
-  //  randomMath();
-  
+    //  randomMath();
+
 
     static double timeLeft = 6000;
     Rect r; 
@@ -91,7 +91,7 @@ int castleHealthToStates(int ch,int fullCh)
 
 int attackLoop(int zombies,int state)
 {
-    
+
     //attack loop
     for(int i = 0; i < zombies; i++){
 	actualHealth -= 5;
@@ -104,5 +104,18 @@ int attackLoop(int zombies,int state)
     }
     return state;
 }
-	
+/*void zombieDemensions(Vec &a){
+    a->vert[0][0] = 0;
+    a->vert[0][1] = 0;
+    a->vert[1][0] = 30;
+    a->vert[1][1] = 0;
+    a->vert[2][0] = 30;
+    a->vert[2][1] = 70;
+    a->vert[3][0] = 0;
+    a->vert[3][1] = 70;
 
+} */
+
+//void checkDeleteZombies(Asteroids &a, Bullet &b){
+
+//}
