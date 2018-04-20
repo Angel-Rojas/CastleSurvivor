@@ -459,40 +459,75 @@ void timerBox(int &x,int &y)
 void showCredits(int yres, int xres)
 {
 	if (Game_mode != 1) {
-	static float angle = 0.0;
-	//static float bounce = 0.0;
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	Rect c;
-	c.bot = yres - 215;
-	c.left = xres/HALVED;
-	c.center = 1;
-	ggprint8b(&c, 16, navy_green, "CREDITS:");
-	xPosition = xres/HALVED - 70;
-	yPosition = yres/HALVED + 107;
-	//	
-	glPushMatrix();
-	glColor3ub(80, 40 ,50);
-	//glTranslatef(angle, angle, 0);
-	glColor3ub(100, 150 ,150);
-	for (int i=0; i<6; i++) {
-	glTranslatef(angle, angle, 0); // angle makes it scroll
-	glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
-	glBegin(GL_TRIANGLES);
-		glVertex2f(-12.0f,	-10.0f);
-		glVertex2f(0.0f,	20.0f);
-		glVertex2f(0.0f,	-6.0f);
-		glVertex2f(0.0f,	-6.0f);
-		glVertex2f(0.0f,	20.0f);
-		glVertex2f(12.0f,	-10.0f);
-	glEnd();
-	}
-	glPopMatrix();
+	    static float angle = 0.0;
+	    //static float bounce = 0.0;
+	    glClearColor(0.0, 0.0, 0.0, 1.0);
+	    Rect c;
+	    c.bot = yres - 215;
+	    c.left = xres/HALVED;
+	    c.center = 1;
+	    ggprint8b(&c, 16, navy_green, "CREDITS:");
+	    xPosition = xres/HALVED - 70;
+	    yPosition = yres/HALVED + 107;
+	    //	
+		for (int k = 0; k < 3; k++) {
+			glPushMatrix();
+			glColor3ub(80, 40 ,50);
+			glTranslatef(angle, angle, 0);
+			glColor3ub(100, 150 ,150);
+			for (int i=0; i<6; i++) {
+				glTranslatef(angle, angle, 0); // angle makes it scroll
+				glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
+				glBegin(GL_TRIANGLES);
+					glVertex2f(-12.0f,	-10.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(12.0f,	-10.0f);
+				glEnd();
+			}
+			glPopMatrix();
 
-	glPushMatrix();
-	glColor3ub(80, 40 ,50);
-	glTranslatef(xPosition, angle, 0); // angle makes it scroll
-		angle = angle + 1.5;
-	if (angle >= yres + 60) {
+			glPushMatrix();
+			glColor3ub(20, 60 ,90);
+			glTranslatef(angle, angle, 0);
+			for (int i=0; i<6; i++) { 
+				glTranslatef(angle, 250, 0);
+				glRotatef(angle, 0.0f, 0.0f, 1.0f);
+				glBegin(GL_TRIANGLES);
+					glVertex2f(-12.0f,	-10.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(12.0f,	-10.0f);
+				glEnd();
+			} 
+			glPopMatrix();
+			
+			glPushMatrix();
+			glColor3ub(140, 150 ,1);
+			for (int i=0; i<6; i++) { 
+				glTranslatef(angle, angle/2, 0);
+				glRotatef(angle, 0.0f, 0.0f, 1.0f);
+				glBegin(GL_TRIANGLES);
+					glVertex2f(-12.0f,	-10.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	-6.0f);
+					glVertex2f(0.0f,	20.0f);
+					glVertex2f(12.0f,	-10.0f);
+				glEnd();
+			} 
+			glPopMatrix();
+		}
+
+		glPushMatrix();
+	    glColor3ub(20, 60 ,90);
+	    glTranslatef(xPosition, angle, 0); 
+		    angle = angle + 1.5;
+	if (angle >= yres + 65) {
 		angle = 0;
 	}
 	glBegin(GL_QUADS);
@@ -539,21 +574,6 @@ void showCredits(int yres, int xres)
 	names.left = 70;
 	names.center = 1;
 	ggprint8b(&names, 16, gold, "Angel Rojas");
-	
-	glColor3ub(20, 60 ,90);
-	for (int i=0; i<6; i++) { 
-	glRotatef(angle, 0.0f, 0.0f, 1.0f);
-	glTranslatef(angle, 0, 0);
-	glBegin(GL_TRIANGLES);
-		glVertex2f(-12.0f,	-10.0f);
-		glVertex2f(0.0f,	20.0f);
-		glVertex2f(0.0f,	-6.0f);
-		glVertex2f(0.0f,	-6.0f);
-		glVertex2f(0.0f,	20.0f);
-		glVertex2f(12.0f,	-10.0f);
-	glEnd();
-	glTranslatef(0, 0, 0);
-	} 
 	glPopMatrix();
 	} else
 		cout << "Bad State: you are currently playing..." << endl;
