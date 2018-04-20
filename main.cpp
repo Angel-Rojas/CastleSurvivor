@@ -41,7 +41,7 @@ using namespace std;
 #include "nygelA.h"
 //#include "abdullahA.h"
 #include "christyG.h"
-
+//#include "BulletAsteroidZombie.cpp"
 
 //defined types
 typedef float Flt;
@@ -211,10 +211,10 @@ public:
 			a->vert[2][1] = 70;
 			a->vert[3][0] = 0;
 			a->vert[3][1] = 70;
-			//-----------------------
+			//initializing zombie postion-----------------------
 			initZombiePosition(gl.xres,zombie_pos);
 			a->pos[ZERO] = zombie_pos;
-			a->pos[1] = (Flt)(rand() % gl.yres);
+			a->pos[1] = (Flt)(rand() % gl.yres - 145);
 			a->pos[2] = 0.0f;
 			a->angle = 0.0;
 			a->rotate = rnd() * 4.0 - 2.0;
@@ -238,6 +238,7 @@ public:
 	}
 } g;
 
+//extern Game g;
 //X Windows variables
 class X11_wrapper {
 private:
@@ -816,11 +817,26 @@ void physics()
 			d0 = b->pos[0] - a->pos[0];
 			d1 = b->pos[1] - a->pos[1];
 			dist = (d0*d0 + d1*d1);
-			if (dist < (a->radius*a->radius)) {
-				//cout << "asteroid hit." << endl;
+			//if (dist < (a->radius*a->radius)) {
+			if(b->pos[0] >= a->pos[0] && (b->pos[1] >a->pos[1] - 35 && b->pos[1] <=a->pos[1] + 35)){
+				cout << "asteroid hit." << endl;
 				//this asteroid is hit.
 				// Increment asteroids destroyed
 				g.nastdestroyed++;
+					a->color[0] = 1.0;
+					a->color[1] = MINIMUM_TIME;
+					a->color[2] = MINIMUM_TIME;
+					//asteroid is too small to break up
+					//delete the asteroid and bullet
+					Asteroid *savea = a->next;
+					deleteAsteroid(&g, a);
+					a = savea;
+					g.nasteroids--;
+					// increment a destroyed asteroid
+					g.nastdestroyed++;
+					// Follow 2 lines are used as tracking numbers
+					incrementZombiesKilled(zombie_kills);
+					gl.counter++;
 				if (a->radius > MINIMUM_ASTEROID_SIZE) {
 					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
 					 * LITTLER OBJECTS
@@ -840,20 +856,6 @@ void physics()
 						g.nasteroids++;
 					}
 				} else {*/
-					a->color[0] = 1.0;
-					a->color[1] = MINIMUM_TIME;
-					a->color[2] = MINIMUM_TIME;
-					//asteroid is too small to break up
-					//delete the asteroid and bullet
-					Asteroid *savea = a->next;
-					deleteAsteroid(&g, a);
-					a = savea;
-					g.nasteroids--;
-					// increment a destroyed asteroid
-					g.nastdestroyed++;
-					// Follow 2 lines are used as tracking numbers
-					incrementZombiesKilled(zombie_kills);
-					gl.counter++;
 				}
 				//delete the bullet...
 				memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
