@@ -974,7 +974,7 @@ void render()
 			    Game_mode = 2;
 			//-------------christy timer-----
 			//
-			//#ifdef PROFILING_OFF //----turns of the timer are the print name
+			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();
 			
 			//----------- christy printname---
@@ -982,7 +982,7 @@ void render()
 			//
 			printName();
 			//-------------------------------
-			//#endif
+			#endif
 
 			playerState(State,gl.yres,gl.xres);
 			Rect r;
