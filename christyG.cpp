@@ -146,10 +146,10 @@ public:
                         unlink(ppmname);
         }
 };
-Images img[4] = {
+/*Images img[4] = {
 "./images/background.png",
 "./images/zombie1.png"
-};
+}; */
 
 
 

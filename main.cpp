@@ -125,7 +125,7 @@ public:
 		memset(keys, ZERO, 65536);
 		//--christy
 		background=1;
-		zombie=1;
+		zombie1=1;
 		//--
 	}
 } gl;
@@ -442,8 +442,9 @@ void init_opengl()
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
-	glGenTextures(1, &g.bigfootTexture);
-	glGenTextures(1, &g.silhouetteTexture);
+	//  CHRISTY
+	//glGenTextures(1, &g.bigfootTexture);
+	//glGenTextures(1, &g.silhouetteTexture);
 
 
 }
@@ -712,7 +713,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 }
 void physics()
 {
-	Flt d0,d1,dist;
+	/*Flt d0,d1,dist*/;
 	//Update ship position
 	//g.ship.pos[0] += g.ship.vel[0];
 	//g.ship.pos[1] += g.ship.vel[1];
@@ -828,9 +829,9 @@ void physics()
 		int i=0;
 		while (i < g.nbullets) {
 			Bullet *b = &g.barr[i];
-			d0 = b->pos[0] - a->pos[0];
-			d1 = b->pos[1] - a->pos[1];
-			dist = (d0*d0 + d1*d1);
+			//d0 = b->pos[0] - a->pos[0];
+			//d1 = b->pos[1] - a->pos[1];
+			//dist = (d0*d0 + d1*d1);
 			//if (dist < (a->radius*a->radius)) {
 			if(b->pos[0] >= a->pos[0] && (b->pos[1] >a->pos[1] - 35 && b->pos[1] <=a->pos[1] + 35)){
 				cout << "asteroid hit." << endl;
@@ -914,6 +915,7 @@ void physics()
 		}
 	}
 	if (gl.keys[XK_space]) {
+		/*
 		//a little time between each bullet
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
@@ -943,7 +945,7 @@ void physics()
 				b->color[2] = 1.0f;
 				g.nbullets++;
 			}
-		}
+		} */
 	}
 	if (g.mouseThrustOn) {
 		//should thrust be turned off
