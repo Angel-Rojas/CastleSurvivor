@@ -108,6 +108,12 @@ extern int castleHealth;
 
 class Global {
 public:
+    	//--christy
+    	GLuint backgroundTexture;
+	GLuint zombie1Texture;
+	int background;
+	int zombie1;
+	//--
 	int counter;
 	int xres, yres;
 	long double playTime;
@@ -117,6 +123,10 @@ public:
 		yres = 900;
 		playTime = 0.0;
 		memset(keys, ZERO, 65536);
+		//--christy
+		background=1;
+		zombie=1;
+		//--
 	}
 } gl;
 
@@ -431,6 +441,10 @@ void init_opengl()
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
+	glGenTextures(1, &g.bigfootTexture);
+	glGenTextures(1, &g.silhouetteTexture);
+
+
 }
 
 void normalize2d(Vec v)
@@ -974,7 +988,7 @@ void render()
 			    Game_mode = 2;
 			//-------------christy timer-----
 			//
-			//#ifdef PROFILING_OFF //----turns of the timer are the print name
+			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();
 			
 			//----------- christy printname---
@@ -982,7 +996,7 @@ void render()
 			//
 			printName();
 			//-------------------------------
-			//#endif
+			#endif
 
 			playerState(State,gl.yres,gl.xres);
 			Rect r;
