@@ -41,24 +41,25 @@ using namespace std;
 #include "nygelA.h"
 //#include "abdullahA.h"
 #include "christyG.h"
-//#include "BulletAsteroidZombie.cpp"
+#include "BulletAsteroidZombie.h"
 
+/*all in defs which is in BAZ.h
 //defined types
 typedef float Flt;
 typedef float Vec[3];
 typedef Flt	Matrix[4][4];
 
 //macros
-#define rnd() (((Flt)rand())/(Flt)RAND_MAX)
-#define random(a) (rand()%(a))
-#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
-#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
-#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
-#define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
+//#define rnd() (((Flt)rand())/(Flt)RAND_MAX)
+//#define random(a) (rand()%(a))
+//in defs#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
+//#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
+//in defs#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
+//#define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
+//#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
 						(c)[1]=(a)[1]-(b)[1]; \
 						(c)[2]=(a)[2]-(b)[2]
-
+*/
 
 //constants
 //const float TIMESLICE = 1.0f;
@@ -130,7 +131,7 @@ public:
 	}
 } gl;
 
-class Ship {
+/*class Ship {
 public:
 	Vec dir;
 	Vec pos;
@@ -207,11 +208,11 @@ public:
 			//Flt r2 = a->radius / 2.0;
 			//Flt angle = 90.0f;
 			//Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			/*for (int i=0; i<a->nverts; i++) {
+			/for (int i=0; i<a->nverts; i++) {
 				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
-			}*/
+			}/
 			//zombies are 30 wide x 70 high
 			a->vert[0][0] = 0;
 			a->vert[0][1] = 0;
@@ -247,8 +248,8 @@ public:
 		delete [] barr;
 	}
 } g;
-
-//extern Game g;
+*/
+Game g;
 //X Windows variables
 class X11_wrapper {
 private:
