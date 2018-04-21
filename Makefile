@@ -17,12 +17,12 @@ LFLAGS = -lrt -lX11 -lGL
 all: main
 Mac: mac
 
-main: main.cpp timers.cpp log.cpp Common.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christyG.cpp christyG.h nygelA.cpp nygelA.h
+main: main.cpp log.cpp timers.cpp Common.h BulletAsteroidZombie.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christyG.cpp christyG.h nygelA.cpp nygelA.h
 	g++ $(CFLAGS) main.cpp log.cpp timers.cpp \
 	angelR.cpp christyG.cpp nygelA.cpp	\
 	libggfonts.a -Wall $(LFLAGS) -o main
 
-mac: main.cpp timers.cpp log.cpp Common.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christyG.cpp christyG.h nygelA.cpp nygelA.h
+mac: main.cpp  log.cpp timers.cpp Common.h BulletAsteroidZombie.h abdullahA.cpp abdullahA.h angelR.cpp angelR.h christyG.cpp christyG.h nygelA.cpp nygelA.h
 	g++ $(CFLAGS) main.cpp log.cpp timers.cpp \
 	angelR.cpp christyG.cpp nygelA.cpp	\
 	libggfontsMac.a -Wall -I/usr/X11R6/include \
