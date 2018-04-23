@@ -39,7 +39,7 @@ using namespace std;
 #include "Common.h"
 #include "angelR.h"
 #include "nygelA.h"
-//#include "abdullahA.h"
+#include "abdullahA.h"
 #include "christyG.h"
 #include "BulletAsteroidZombie.h"
 
@@ -89,8 +89,8 @@ extern int zombie_kills;
 extern int next_level;
 extern int wave_count;
 extern string POW;
-extern int YOFFSET; 
-extern int MOREYOFFSET; 
+extern int YOFFSET;
+extern int MOREYOFFSET;
 extern int XOFFSET;
 extern string FULLH;
 extern string THREE4sH;
@@ -105,6 +105,13 @@ extern int Game_mode;
 extern int State;
 extern int actualHealth;
 extern int castleHealth;
+
+extern void *makeButton(char *title, float x, float y, float w, float h, void (*action)(), Button *b);
+extern int isPointerInsideButton(float x, float y, Button *b);
+extern void logGameStatus(int type);
+extern void logWaveLevel(int type);
+extern void reinitGameLevel(int waveLevel);
+
 //-------------------------------------------------------------------------
 
 class Global {
@@ -119,6 +126,8 @@ public:
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
+  Button *buttons;
+  int nbutton;
 	Global() {
 		xres = 1250;
 		yres = 900;
@@ -127,6 +136,8 @@ public:
 		//--christy
 		background=1;
 		zombie1=1;
+    Game_mode=0;
+    nbutton = 0;
 		//--
 	}
 } gl;
@@ -389,17 +400,25 @@ void showCredits(int,int);
 //=========================================================================
 // M A I N
 //=========================================================================
+// void action() {
+//   printf("helloWorld");
+// }
 int main()
 {
+
+  // makeButton("helloWorld", 0,0,100,100, action, &gl.buttons[gl.nbutton++]);
+  // printf("%s\n", gl.buttons[gl.nbutton-1].title);
+
 	// logOpen();
 	init_opengl();
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	int done=0;
 	while (!done) {
-	    	while (x11.getXPending()) {
+  	while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
+      usleep(1);
 			check_mouse(&e);
 			done = check_keys(&e);
 		}
@@ -473,73 +492,92 @@ void check_mouse(XEvent *e)
 			e->type != ButtonRelease &&
 			e->type != MotionNotify)
 		return;
-	if (e->type == ButtonRelease)
-		return;
+	if (e->type == ButtonRelease) {
+	// 	struct timespec bt;
+	// 	clock_gettime(CLOCK_REALTIME, &bt);
+	// 	double ts = timeDiff(&g.bulletTimer, &bt);
+	// 	if (e->xbutton.button==3) {
+	// 		//Right button is down
+	// 		if (ts > MINIMUM_TIME) {
+	// 			timeCopy(&g.bulletTimer, &bt);
+	// 			//shoot a bullet...
+	// 			if (g.nbullets < MAX_BULLETS) {
+	// 				Bullet *b = &g.barr[g.nbullets];
+	// 				timeCopy(&b->time, &bt);
+	// 				b->pos[0] = g.ship.pos[0];
+	// 				b->pos[1] = g.ship.pos[1];
+	// 				b->vel[0] = g.ship.vel[0];
+	// 				b->vel[1] = g.ship.vel[1];
+	// 				//convert ship angle to radians
+	// 				Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+	// 				//convert angle to a vector
+	// 				Flt xdir = cos(rad);
+	// 				Flt ydir = sin(rad);
+	// 				b->pos[0] += xdir*20.0f;
+	// 				b->pos[1] += ydir*20.0f;
+	// 				b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
+	// 				b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
+	// 				b->color[0] = 1.0f;
+	// 				b->color[1] = 1.0f;
+	// 				b->color[2] = 1.0f;
+	// 				++g.nbullets;
+	// 			}
+	// 		}
+	// 	}
+    return;
+  }
 	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
-			//Left button is down
-			//a little time between each bullet
-			powText();
-			struct timespec bt;
-			clock_gettime(CLOCK_REALTIME, &bt);
-			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > MINIMUM_TIME) {
-				timeCopy(&g.bulletTimer, &bt);
-				//shoot a bullet...
-				if (g.nbullets < MAX_BULLETS) {
-					Bullet *b = &g.barr[g.nbullets];
-					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
-					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
-					b->vel[1] = g.ship.vel[1];
-					//convert ship angle to radians
-					Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = cos(rad);
-					Flt ydir = sin(rad);
-					b->pos[0] += xdir*20.0f;
-					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
-					b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
-					b->color[0] = 1.0f;
-					b->color[1] = 1.0f;
-					b->color[2] = 1.0f;
-					++g.nbullets;
-				}
-			}
-		}
-		struct timespec bt;
-		clock_gettime(CLOCK_REALTIME, &bt);
-		double ts = timeDiff(&g.bulletTimer, &bt);
-		if (e->xbutton.button==3) {
-			//Right button is down
-			if (ts > MINIMUM_TIME) {
-				timeCopy(&g.bulletTimer, &bt);
-				//shoot a bullet...
-				if (g.nbullets < MAX_BULLETS) {
-					Bullet *b = &g.barr[g.nbullets];
-					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
-					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
-					b->vel[1] = g.ship.vel[1];
-					//convert ship angle to radians
-					Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = cos(rad);
-					Flt ydir = sin(rad);
-					b->pos[0] += xdir*20.0f;
-					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
-					b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
-					b->color[0] = 1.0f;
-					b->color[1] = 1.0f;
-					b->color[2] = 1.0f;
-					++g.nbullets;
-				}
-			}
-		}
+    if (e->xbutton.button==1) {
+      //Left button is down
+      if (Game_mode!=1) {
+        if (savey>=320&&savey<=345&&savex>=555&&savex<=705) {
+          Game_mode = 1;
+          printf("pressed Game_mode(1)\n");
+        }
+        else if (savey>=370&&savey<=395&&savex>=555&&savex<=705) {
+          Game_mode = 5;
+          printf("pressed Game_mode(5)\n");
+        }
+      } else {
+        if (savex>=0&&savex<=1249&&savey>=0&&savey<=90) {
+          Game_mode = 2;
+          printf("pressed Game_mode(2)\n");
+        } else {
+          //a little time between each bullet
+          printf("pressed Game_mode(0)\n");
+          powText();
+          struct timespec bt;
+          clock_gettime(CLOCK_REALTIME, &bt);
+          double ts = timeDiff(&g.bulletTimer, &bt);
+          if (ts > MINIMUM_TIME) {
+            timeCopy(&g.bulletTimer, &bt);
+            //shoot a bullet...
+            if (g.nbullets < MAX_BULLETS) {
+              Bullet *b = &g.barr[g.nbullets];
+              timeCopy(&b->time, &bt);
+              b->pos[0] = g.ship.pos[0];
+              b->pos[1] = g.ship.pos[1];
+              b->vel[0] = g.ship.vel[0];
+              b->vel[1] = g.ship.vel[1];
+              //convert ship angle to radians
+              Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+              //convert angle to a vector
+              Flt xdir = cos(rad);
+              Flt ydir = sin(rad);
+              b->pos[0] += xdir*20.0f;
+              b->pos[1] += ydir*20.0f;
+              b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
+              b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
+              b->color[0] = 1.0f;
+              b->color[1] = 1.0f;
+              b->color[2] = 1.0f;
+              ++g.nbullets;
+            }
+          }
+        }
+      }
+    }
+    return;
 	} // end of ButtonPress
 	// if (e->type == MotionNotify) {
 	//	if (savex != e->xbutton.x || savey != e->xbutton.y) {
@@ -588,7 +626,10 @@ void check_mouse(XEvent *e)
 	if (e->type == MotionNotify) {
 		if (savex != e->xbutton.x || savey != e->xbutton.y) {
 			// //Mouse moved
-			g.ship.angle = (e->xbutton.y%(gl.yres))*-1;
+  		savex = e->xbutton.x;
+  		savey = e->xbutton.y;
+      printf("%d | %d\n", savex, savey);
+      g.ship.angle = (e->xbutton.y%(gl.yres))*-1;
 		}
 	}
 }
@@ -617,7 +658,7 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_space:
-			Game_mode = 2;
+      Game_mode = (Game_mode == 2)? 1: 2; // if already paused.. restart the game
 			break;
 		case XK_p:
 			Game_mode = 1;
@@ -995,7 +1036,7 @@ void render()
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();
-			
+
 			//----------- christy printname---
 			void printName();
 			//
@@ -1013,9 +1054,9 @@ void render()
 			displayWave(gl.yres,10);
 			//
 			ggprint8b(&r, 16, red, "Castle Survivor!");
-			// //ggprint8b(&r, 16, 0x00ffff00, 
+			// //ggprint8b(&r, 16, 0x00ffff00,
             //"n asteroids: %i", g.nasteroids);
-			// //ggprint8b(&r, 16, 0x00ffff00, 
+			// //ggprint8b(&r, 16, 0x00ffff00,
             //"n asteroids destroyed: %i", g.nastdestroyed);
 			// //
 			//-------------
@@ -1131,14 +1172,14 @@ void render()
 			pauseGame(gl.xres, gl.yres);
 			break;
 		case 3:
-			endGameScreen();	
+			endGameScreen();
 			break;
 		case 4:
-			gameOver(gl.xres, gl.yres);	
+			gameOver(gl.xres, gl.yres);
 			break;
 		case 5:
-			showCredits(gl.yres, gl.xres);	
+			showCredits(gl.yres, gl.xres);
 			break;
 	}
-	
+
 }
