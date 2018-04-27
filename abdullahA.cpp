@@ -136,3 +136,23 @@ void reinitGameLevel(int waveLevel) {
 		default
 	}
 }
+
+
+int buttonPressed(int x, int y, int game_mode) {
+  // if (game_mode!=PLAYING) {
+  //   if (y>=320&&y<=345&&x>=555&&x<=705) {
+  //     return PLAYING;
+  //     // printf("pressed Game_mode(1)\n");
+  //   }
+  //   else if (y>=370&&y<=395&&x>=555&&x<=705) {
+  //     return CREDITS;
+  //     // printf("pressed Game_mode(5)\n");
+  //   }
+  // } else {
+  //   if (x>=0&&x<=1249&&y>=0&&y<=90) {
+  //     return PAUSED;
+  //     // printf("pressed Game_mode(2)\n");
+  //   }
+  // }
+  return -1;
+}

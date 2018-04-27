@@ -106,27 +106,86 @@ extern int State;
 extern int actualHealth;
 extern int castleHealth;
 
-extern void *makeButton(char *title, float x, float y, float w, float h, void (*action)(), Button *b);
+extern void makeButton(char *title, float x, float y, float w, float h, void (*action)(), Button *b);
 extern int isPointerInsideButton(float x, float y, Button *b);
 extern void logGameStatus(int type);
 extern void logWaveLevel(int type);
 extern void reinitGameLevel(int waveLevel);
+extern int buttonPressed(int x, int y, int game_mode);
 
 //-------------------------------------------------------------------------
+class Image {
+public:
+	int width, height;
+	unsigned char *data;
+	~Image() { delete [] data; }
+	Image(const char *fname) {
+		if (fname[0] == '\0')
+			return;
+		//printf("fname **%s**\n", fname);
+		char name[40];
+		strcpy(name, fname);
+		int slen = strlen(name);
+		name[slen-4] = '\0';
+		//printf("name **%s**\n", name);
+		// char ppmname[80];
+		// sprintf(ppmname,"%s.ppm", name);
+		// //printf("ppmname **%s**\n", ppmname);
+		// char ts[100];
+		// //system("convert eball.jpg eball.ppm");
+		// sprintf(ts, "convert %s %s", fname, ppmname);
+		// system(ts);
+		//sprintf(ts, "%s", name);
+		FILE *fpi = fopen(fname, "r");
+		if (fpi) {
+			char line[200];
+			fgets(line, 200, fpi);
+			fgets(line, 200, fpi);
+			//skip comments and blank lines
+			while (line[0] == '#' || strlen(line) < 2)
+				fgets(line, 200, fpi);
+			sscanf(line, "%i %i", &width, &height);
+			fgets(line, 200, fpi);
+			//get pixel data
+			int n = width * height * 3;
+			data = new unsigned char[n];
+			for (int i=0; i<n; i++)
+				data[i] = fgetc(fpi);
+			fclose(fpi);
+		} else {
+			printf("ERROR opening image: %s\n",fname);
+			exit(0);
+		}
+		// unlink(ppmname);
+	}
+};
+Image img[1] = {"./images/background.ppm"};
+
+class Texture {
+public:
+	Image *backImage;
+	GLuint backTexture;
+	float xc[2];
+	float yc[2];
+};
+
 
 class Global {
 public:
-    	//--christy
-    	GLuint backgroundTexture;
+	//--christy
+	GLuint backgroundTexture;
 	GLuint zombie1Texture;
 	int background;
 	int zombie1;
 	//--
+
+  Texture tex;
+
 	int counter;
 	int xres, yres;
 	long double playTime;
 	char keys[65536];
-  Button *buttons;
+  Button buttons[10];
   int nbutton;
 	Global() {
 		xres = 1250;
@@ -136,7 +195,7 @@ public:
 		//--christy
 		background=1;
 		zombie1=1;
-    Game_mode=0;
+    Game_mode = NEW_GAME;
     nbutton = 0;
 		//--
 	}
@@ -400,14 +459,11 @@ void showCredits(int,int);
 //=========================================================================
 // M A I N
 //=========================================================================
-// void action() {
-//   printf("helloWorld");
-// }
+void action() {
+  printf("helloWorld");
+}
 int main()
 {
-
-  // makeButton("helloWorld", 0,0,100,100, action, &gl.buttons[gl.nbutton++]);
-  // printf("%s\n", gl.buttons[gl.nbutton-1].title);
 
 	// logOpen();
 	init_opengl();
@@ -466,6 +522,22 @@ void init_opengl()
 	//glGenTextures(1, &g.bigfootTexture);
 	//glGenTextures(1, &g.silhouetteTexture);
 
+  //load the images file into a ppm structure.
+	//
+	gl.tex.backImage = &img[0];
+	//create opengl texture elements
+	glGenTextures(1, &gl.tex.backTexture);
+	int w = gl.tex.backImage->width;
+	int h = gl.tex.backImage->height;
+	glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+							GL_RGB, GL_UNSIGNED_BYTE, gl.tex.backImage->data);
+	gl.tex.xc[0] = 0.0;
+	gl.tex.xc[1] = 0.25;
+	gl.tex.yc[0] = 0.0;
+	gl.tex.yc[1] = 1.0;
 
 }
 
@@ -529,51 +601,53 @@ void check_mouse(XEvent *e)
 	if (e->type == ButtonPress) {
     if (e->xbutton.button==1) {
       //Left button is down
-      if (Game_mode!=1) {
+      // int mode = buttonPressed(savex, savey, Game_mode);
+      // Game_mode = (mode<1)? 1: mode;
+      if (Game_mode!=PLAYING) {
         if (savey>=320&&savey<=345&&savex>=555&&savex<=705) {
-          Game_mode = 1;
-          printf("pressed Game_mode(1)\n");
+          Game_mode = PLAYING;
+          // printf("pressed Game_mode(1)\n");
         }
         else if (savey>=370&&savey<=395&&savex>=555&&savex<=705) {
-          Game_mode = 5;
-          printf("pressed Game_mode(5)\n");
+          Game_mode = CREDITS;
+          // printf("pressed Game_mode(5)\n");
         }
       } else {
         if (savex>=0&&savex<=1249&&savey>=0&&savey<=90) {
-          Game_mode = 2;
-          printf("pressed Game_mode(2)\n");
-        } else {
-          //a little time between each bullet
-          printf("pressed Game_mode(0)\n");
-          powText();
-          struct timespec bt;
-          clock_gettime(CLOCK_REALTIME, &bt);
-          double ts = timeDiff(&g.bulletTimer, &bt);
-          if (ts > MINIMUM_TIME) {
-            timeCopy(&g.bulletTimer, &bt);
-            //shoot a bullet...
-            if (g.nbullets < MAX_BULLETS) {
-              Bullet *b = &g.barr[g.nbullets];
-              timeCopy(&b->time, &bt);
-              b->pos[0] = g.ship.pos[0];
-              b->pos[1] = g.ship.pos[1];
-              b->vel[0] = g.ship.vel[0];
-              b->vel[1] = g.ship.vel[1];
-              //convert ship angle to radians
-              Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
-              //convert angle to a vector
-              Flt xdir = cos(rad);
-              Flt ydir = sin(rad);
-              b->pos[0] += xdir*20.0f;
-              b->pos[1] += ydir*20.0f;
-              b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
-              b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
-              b->color[0] = 1.0f;
-              b->color[1] = 1.0f;
-              b->color[2] = 1.0f;
-              ++g.nbullets;
-            }
-          }
+          Game_mode = PAUSED;
+          // printf("pressed Game_mode(2)\n");
+        }
+      }
+
+      //a little time between each bullet
+      // printf("pressed Game_mode(0)\n");
+      powText();
+      struct timespec bt;
+      clock_gettime(CLOCK_REALTIME, &bt);
+      double ts = timeDiff(&g.bulletTimer, &bt);
+      if (ts > MINIMUM_TIME) {
+        timeCopy(&g.bulletTimer, &bt);
+        //shoot a bullet...
+        if (g.nbullets < MAX_BULLETS) {
+          Bullet *b = &g.barr[g.nbullets];
+          timeCopy(&b->time, &bt);
+          b->pos[0] = g.ship.pos[0];
+          b->pos[1] = g.ship.pos[1];
+          b->vel[0] = g.ship.vel[0];
+          b->vel[1] = g.ship.vel[1];
+          //convert ship angle to radians
+          Flt rad = ((g.ship.angle+RIGHT_ANGLE) / WHOLE_ANGLE) * PI * 2.0;
+          //convert angle to a vector
+          Flt xdir = cos(rad);
+          Flt ydir = sin(rad);
+          b->pos[0] += xdir*20.0f;
+          b->pos[1] += ydir*20.0f;
+          b->vel[0] += xdir*6.0f + rnd()*MINIMUM_TIME;
+          b->vel[1] += ydir*6.0f + rnd()*MINIMUM_TIME;
+          b->color[0] = 1.0f;
+          b->color[1] = 1.0f;
+          b->color[2] = 1.0f;
+          ++g.nbullets;
         }
       }
     }
@@ -628,7 +702,7 @@ void check_mouse(XEvent *e)
 			// //Mouse moved
   		savex = e->xbutton.x;
   		savey = e->xbutton.y;
-      printf("%d | %d\n", savex, savey);
+      // printf("%d | %d\n", savex, savey);
       g.ship.angle = (e->xbutton.y%(gl.yres))*-1;
 		}
 	}
@@ -661,7 +735,7 @@ int check_keys(XEvent *e)
       Game_mode = (Game_mode == 2)? 1: 2; // if already paused.. restart the game
 			break;
 		case XK_p:
-			Game_mode = 1;
+			Game_mode = PLAYING;
 			break;
 		case XK_o:
 			//cout << "BEFORE zombiekills(o)reset:" <<zombie_kills <<endl;
@@ -684,7 +758,7 @@ int check_keys(XEvent *e)
 		case XK_u:
 			break;
 		case XK_c:
-			Game_mode = 5;
+			Game_mode = CREDITS;
 			break;
 		case XK_m:
 			// Angel testing something
@@ -811,9 +885,9 @@ void physics()
 	//Update asteroid positions meaning Asteroid movement
 	Asteroid *a = g.ahead;
 	switch (Game_mode) {
-		case 0:
+		case NEW_GAME:
 			break;
-		case 1:
+		case PLAYING:
 			while (a) {
 				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
 				a->pos[0] += a->vel[0];
@@ -846,16 +920,16 @@ void physics()
 				a = a->next;
 			}//end of while
 			break;
-		case 2:
+		case PAUSED:
 			//Game_mode set to PAUSED
 			break;
-		case 3:
+		case END_GAME:
 			//Game_mode set to WIN
 			break;
-		case 4:
+		case GAME_OVER:
 			//Game_mode set to GAMEOVER
 			break;
-		case 5:
+		case CREDITS:
 			//Game_mode set to CREDITS
 			break;
 	// end of Switch
@@ -1022,16 +1096,48 @@ void render()
 		}
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
-		case 1:
+    case NEW_GAME:
+      /*Bullet *b = &g.barr[0];
+      for (int i=0; i<g.nbullets; i++) {
+        //Log("draw bullet...\n");
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POINTS);
+          glVertex2f(b->pos[0],      b->pos[1]);
+          glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+          glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+          glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+          glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+          glColor3f(0.8, 0.8, 0.8);
+          glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+          glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+          glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+          glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+        glEnd();
+        ++b;
+        } */
+      displayMenu(gl.yres, gl.xres);
+      break;
+   case PLAYING:
 			// nygel timer
 			//timerN(0);
+      // background
+      glClear(GL_COLOR_BUFFER_BIT);
+      glColor3f(1.0, 1.0, 1.0);
+      glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
+      glBegin(GL_QUADS);
+        glTexCoord2f(gl.tex.xc[0], gl.tex.yc[1]); glVertex2i(0, 0);
+        glTexCoord2f(gl.tex.xc[0], gl.tex.yc[0]); glVertex2i(0, gl.yres);
+        glTexCoord2f(gl.tex.xc[1], gl.tex.yc[0]); glVertex2i(gl.xres, gl.yres);
+        glTexCoord2f(gl.tex.xc[1], gl.tex.yc[1]); glVertex2i(gl.xres, 0);
+      glEnd();
+
 			//------------christy header------
 			void header(int , int, int, int);
 			//
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
 			//wave timer -- nygel?
 			if (waveCountDown(gl.xres,gl.yres) == false)
-			    Game_mode = 2;
+			    Game_mode = PAUSED;
 			//-------------christy timer-----
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
@@ -1147,37 +1253,16 @@ void render()
 				}*/
 			angelsTimer(gl.xres,gl.yres);
 			break;
-		case 0:
-			/*Bullet *b = &g.barr[0];
-			for (int i=0; i<g.nbullets; i++) {
-				//Log("draw bullet...\n");
-				glColor3f(1.0, 1.0, 1.0);
-				glBegin(GL_POINTS);
-					glVertex2f(b->pos[0],      b->pos[1]);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-					glColor3f(0.8, 0.8, 0.8);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-				glEnd();
-				++b;
-				} */
-			displayMenu(gl.yres, gl.xres);
-			break;
-		case 2:
+		case PAUSED:
 			pauseGame(gl.xres, gl.yres);
 			break;
-		case 3:
+		case END_GAME:
 			endGameScreen();
 			break;
-		case 4:
+		case GAME_OVER:
 			gameOver(gl.xres, gl.yres);
 			break;
-		case 5:
+		case CREDITS:
 			showCredits(gl.yres, gl.xres);
 			break;
 	}

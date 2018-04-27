@@ -8,10 +8,19 @@ by: Abdullah Aljahdali
 
 
 enum GameStatus {
-  PLAYING = 0,
-  PAUSING = 1,
-  NEW_GAME = 2
+  NEW_GAME = 0,
+  PLAYING = 1,
+  PAUSED = 2,
+  END_GAME = 3,
+  GAME_OVER = 4,
+  CREDITS = 5,
 };
+
+// enum Buttons {
+//   END_GAME = 0,
+//   PLAYING = 1,
+//   CREDITS = 2,
+// };
 
 enum WAVE {
   WAVE_I = 0,
@@ -33,13 +42,13 @@ struct Button {
   float x;
   float y;
   int active;
-  void (*action)(float, float);
+  void (*action)();
 };
 
-void *makeButton(char *title, float x, float y, float w, float h, void (*action)(), Button *b);
+void makeButton(char *title, float x, float y, float w, float h, void (*action)(), Button *b);
 int isPointerInsideButton(float x, float y, Button *b);
 void logGameStatus(int type);
 void logWaveLevel(int type);
 void reinitGameLevel(int waveLevel);
-
+int buttonPressed(int x, int y, int game_mode);
 #endif
