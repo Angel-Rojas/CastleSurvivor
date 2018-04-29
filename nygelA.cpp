@@ -10,8 +10,8 @@
 #include "BulletAsteroidZombie.h"
 //#include "angelR.cpp"
 //globals
-int castleHealth;
-int actualHealth;
+int castleHealth = 100;
+int actualHealth = 100;
 #define gxres  1250
 #define gyres  900
 #define MAX_BULLETS  11
@@ -76,35 +76,45 @@ bool waveCountDown (int xres, int yres)
         return true;
 }
 
-int castleHealthToStates(int ch,int fullCh)
+int castleHealthToStates(int fullCh,int ch)
 {
     //ch is castle health its the one actually decreasing
     //fullCH is castle health if full, should never change
     //full-75% health
-    if(ch >(fullCh/75))
+    if (ch >(fullCh/75)) {
+	cout <<"\nclose to full\n";
         return 1;
+    }
     //75-50% health
-    else if((fullCh/75) >= ch || ch > 50)
+    else if((fullCh/75) >= ch && ch > 50) {
+	cout <<"\nclose to half\n";
         return 2;
+    }
     //50-25% health
-    else if((fullCh/50) >= ch || ch > 25)
+    else if((fullCh/50) >= ch && ch > 0) {
+	cout <<"\nless than half\n";
         return 3;
+    }
     //dead
-    else
+    else {
+	cout <<"\ndead\n";
         return 4;
+    }
 }
 
 int attackLoop(int zombies,int state)
 {
-
+	//castleHealth is full health of castle
+	//actualHealth is the actual amount left of health
     //attack loop
-    for(int i = 0; i < zombies; i++){
+    for(int i =0; i <zombies; i++) {
         actualHealth -= 5;
         state = castleHealthToStates(castleHealth,actualHealth);
+	cout << "\n hit health:" << castleHealth <<": " << actualHealth<<endl;
     }
     //random math function to slow down so act as a sleep
     int x = 100;
-    for (int i=0; i < 3000; i++){
+    for (int i=0; i < 3e7; i++) {
         x = x % 3 * 1.24 + 76.0 * x;
     }
     return state;
