@@ -522,22 +522,21 @@ void init_opengl()
 	//glGenTextures(1, &g.bigfootTexture);
 	//glGenTextures(1, &g.silhouetteTexture);
 
-  //load the images file into a ppm structure.
-	//
-	gl.tex.backImage = &img[0];
-	//create opengl texture elements
-	glGenTextures(1, &gl.tex.backTexture);
-	int w = gl.tex.backImage->width;
-	int h = gl.tex.backImage->height;
-	glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-							GL_RGB, GL_UNSIGNED_BYTE, gl.tex.backImage->data);
-	gl.tex.xc[0] = 0.0;
-	gl.tex.xc[1] = 0.25;
-	gl.tex.yc[0] = 0.0;
-	gl.tex.yc[1] = 1.0;
+  // //load the images file.
+	// gl.tex.backImage = &img[0];
+	// //create opengl texture elements
+	// glGenTextures(1, &gl.tex.backTexture);
+	// int w = gl.tex.backImage->width;
+	// int h = gl.tex.backImage->height;
+	// glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
+	// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	// glTexImage2D(GL_TEXTURE_2D, 0, 0, w, h, 0,
+	// 						GL_RGB, GL_UNSIGNED_BYTE, gl.tex.backImage->data);
+	// gl.tex.xc[0] = 0.0;
+	// gl.tex.xc[1] = 1.0;
+	// gl.tex.yc[0] = 0.0;
+	// gl.tex.yc[1] = 1.0;
 
 }
 
@@ -1120,16 +1119,16 @@ void render()
    case PLAYING:
 			// nygel timer
 			//timerN(0);
-      // background
-      glClear(GL_COLOR_BUFFER_BIT);
-      glColor3f(1.0, 1.0, 1.0);
-      glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
-      glBegin(GL_QUADS);
-        glTexCoord2f(gl.tex.xc[0], gl.tex.yc[1]); glVertex2i(0, 0);
-        glTexCoord2f(gl.tex.xc[0], gl.tex.yc[0]); glVertex2i(0, gl.yres);
-        glTexCoord2f(gl.tex.xc[1], gl.tex.yc[0]); glVertex2i(gl.xres, gl.yres);
-        glTexCoord2f(gl.tex.xc[1], gl.tex.yc[1]); glVertex2i(gl.xres, 0);
-      glEnd();
+      // // background
+      // glClear(GL_COLOR_BUFFER_BIT);
+      // glColor3f(1.0, 1.0, 1.0);
+      // glBindTexture(GL_TEXTURE_2D, gl.tex.backTexture);
+      // glBegin(GL_QUADS);
+      //   glTexCoord2f(gl.tex.xc[0], gl.tex.yc[1]); glVertex2i(0, 0);
+      //   glTexCoord2f(gl.tex.xc[0], gl.tex.yc[0]); glVertex2i(0, gl.yres);
+      //   glTexCoord2f(gl.tex.xc[1], gl.tex.yc[0]); glVertex2i(gl.xres, gl.yres);
+      //   glTexCoord2f(gl.tex.xc[1], gl.tex.yc[1]); glVertex2i(gl.xres, 0);
+      // glEnd();
 
 			//------------christy header------
 			void header(int , int, int, int);
