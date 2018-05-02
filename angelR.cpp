@@ -386,6 +386,23 @@ void displayMenu(int yrespos, int xrespos)
 	credits.left = xPosition + 70;
 	credits.center = 1;
 	ggprint8b(&credits, 16, yellow, "C - View Credits");
+	//	
+	glColor3ub(100, 150 ,150);
+	glPushMatrix();
+	//glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(xPosition, yPosition-100, 0);
+	glBegin(GL_QUADS);
+		glVertex2i(0,	0);
+		glVertex2i(0,	25);
+		glVertex2i(150,	25);
+		glVertex2i(150,	0);
+	glEnd();
+	glPopMatrix();
+	Rect inst;
+	inst.bot = yPosition-93;
+	inst.left = xPosition + 70;
+	inst.center = 1;
+	ggprint8b(&inst, 16, yellow, "H - How To Play!");
 	return;
 }
 
@@ -460,6 +477,13 @@ void showCredits(int yres, int xres)
 {
 	if (Game_mode != 1) {
 	    static float angle = 0.0;
+	    Rect back;
+	    back.bot = (yres - 15);
+	    back.left = (xres - xres) + 67;
+	    back.center = 1;
+	    ggprint8b(&back, 16, lt_blue, "<-- press 'b' to go back!");
+	    xPosition = xres/HALVED - 70;
+	    yPosition = yres/HALVED + 107;
 	    //static float bounce = 0.0;
 	    glClearColor(0.0, 0.0, 0.0, 1.0);
 	    Rect c;
@@ -488,7 +512,7 @@ void showCredits(int yres, int xres)
 				glEnd();
 			}
 			glPopMatrix();
-
+			//
 			glPushMatrix();
 			glColor3ub(20, 60 ,90);
 			glTranslatef(angle, angle, 0);
@@ -505,7 +529,7 @@ void showCredits(int yres, int xres)
 				glEnd();
 			} 
 			glPopMatrix();
-			
+			//
 			glPushMatrix();
 			glColor3ub(140, 150 ,1);
 			for (int i=0; i<6; i++) { 
@@ -522,7 +546,7 @@ void showCredits(int yres, int xres)
 			} 
 			glPopMatrix();
 		}
-
+		//
 		glPushMatrix();
 	    glColor3ub(20, 60 ,90);
 	    glTranslatef(xPosition, angle, 0); 
@@ -577,6 +601,17 @@ void showCredits(int yres, int xres)
 	glPopMatrix();
 	} else
 		cout << "Bad State: you are currently playing..." << endl;
+}
+
+void instructions ()
+{
+	
+}
+
+void change_toMenu()
+{
+	Game_mode = MENU;
+	return;
 }
 
 void stateHitOnce(int &state)

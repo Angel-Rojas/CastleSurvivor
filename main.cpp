@@ -455,6 +455,8 @@ void pauseGame(int,int);
 void endGameScreen();
 void gameOver(int,int);
 void showCredits(int,int);
+void instructions();
+void change_toMenu();
 
 //=========================================================================
 // M A I N
@@ -755,6 +757,9 @@ int check_keys(XEvent *e)
 			startOver(zombie_kills,State,Game_mode);
 			break;
 		case XK_u:
+			break;
+		case XK_b:
+			change_toMenu();
 			break;
 		case XK_c:
 			Game_mode = CREDITS;
