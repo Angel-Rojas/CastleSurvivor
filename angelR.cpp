@@ -71,7 +71,8 @@ enum GameMode {
 	PAUSED,
 	WIN,
 	GAMEOVER,
-	CREDITS
+	CREDITS,
+	INSTR
 };
 
 // Function that actually displays player health bar.
@@ -140,7 +141,6 @@ void displayHealth(int input,int ypos, int xpos)
 			d.center = 0;
 			ggprint8b(&d, 16, red, "%s", EMPTYH);
 			break;
-
 		default: 
 			Rect t;
 			t.bot = 870;
@@ -441,7 +441,6 @@ double angelsTimer(int inputx, int inputy)
 	z.left = inputx-115;
 	z.center = 1;
 	ggprint8b(&z, 16, yellow, "<spacebar> PAUSE");
-	
 	return my_timer;
 }
 
@@ -478,8 +477,8 @@ void showCredits(int yres, int xres)
 	if (Game_mode != 1) {
 	    static float angle = 0.0;
 	    Rect back;
-	    back.bot = (yres - 15);
-	    back.left = (xres - xres) + 67;
+	    back.bot = (yres - 20);
+	    back.left = (xres - xres) + 79;
 	    back.center = 1;
 	    ggprint8b(&back, 16, lt_blue, "<-- press 'b' to go back!");
 	    xPosition = xres/HALVED - 70;
@@ -501,7 +500,8 @@ void showCredits(int yres, int xres)
 			glColor3ub(100, 150 ,150);
 			for (int i=0; i<6; i++) {
 				glTranslatef(angle, angle, 0); // angle makes it scroll
-				glRotatef(angle, 0.0f, 0.0f, 1.0f); // which axis to rotate on? x y z
+				 // which axis to rotate on? x y z
+				glRotatef(angle, 0.0f, 0.0f, 1.0f);
 				glBegin(GL_TRIANGLES);
 					glVertex2f(-12.0f,	-10.0f);
 					glVertex2f(0.0f,	20.0f);
@@ -603,9 +603,25 @@ void showCredits(int yres, int xres)
 		cout << "Bad State: you are currently playing..." << endl;
 }
 
-void instructions ()
+void instructions(int yres, int xres)
 {
-	
+	Rect text;
+	text.bot = (yres - 20);
+	text.left = (xres - xres) + 79;
+	text.center = 1;
+	ggprint8b(&text, 16, lt_blue, "<-- press 'b' to go back!");
+	text.bot = (yres / 2) + 40;
+	text.left = xres / 2;
+	ggprint8b(&text, 16, lt_blue, "B - to go back to Menu");
+	ggprint8b(&text, 16, navy_green, "C - to view credits");
+	ggprint8b(&text, 16, yellow, "Just click to shoot zombies, dummy!");
+}
+
+void change_toInstr()
+{
+	//Game_mode = INSTRUCTIONS;
+	Game_mode = 6;
+	return;
 }
 
 void change_toMenu()

@@ -21,8 +21,9 @@ void stateHitThrice(int&);
 void statePlayerDead(int&);
 void gameOver(int,int);
 void showCredits(int,int);
-void instructions();
+void instructions(int,int);
 void change_toMenu();
+void change_toInstr();
 extern int zombie_pos;
 
 #endif

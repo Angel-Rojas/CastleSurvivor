@@ -455,8 +455,9 @@ void pauseGame(int,int);
 void endGameScreen();
 void gameOver(int,int);
 void showCredits(int,int);
-void instructions();
+void instructions(int,int);
 void change_toMenu();
+void change_toInstr();
 
 //=========================================================================
 // M A I N
@@ -770,6 +771,9 @@ int check_keys(XEvent *e)
 			break;
 		case XK_Down:
 			break;
+		case XK_h:
+			change_toInstr();
+			break;
 		case XK_equal:
 			break;
 		case XK_minus:
@@ -936,6 +940,9 @@ void physics()
 		case CREDITS:
 			//Game_mode set to CREDITS
 			break;
+		case 6:
+			//Game_mode set to INSTRUCTIONS
+			break;
 	// end of Switch
 	}
 	//Asteroid collision with bullets?
@@ -1100,27 +1107,27 @@ void render()
 		}
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
-    case NEW_GAME:
-      /*Bullet *b = &g.barr[0];
-      for (int i=0; i<g.nbullets; i++) {
-        //Log("draw bullet...\n");
-        glColor3f(1.0, 1.0, 1.0);
-        glBegin(GL_POINTS);
-          glVertex2f(b->pos[0],      b->pos[1]);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-          glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-          glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-          glColor3f(0.8, 0.8, 0.8);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-        glEnd();
-        ++b;
-        } */
-      displayMenu(gl.yres, gl.xres);
-      break;
+			case NEW_GAME:
+			  /*Bullet *b = &g.barr[0];
+			  for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 1.0);
+				glBegin(GL_POINTS);
+				  glVertex2f(b->pos[0],      b->pos[1]);
+				  glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+				  glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+				  glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+				  glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+				  glColor3f(0.8, 0.8, 0.8);
+				  glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+				  glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+				  glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+				  glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+				} */
+			  displayMenu(gl.yres, gl.xres);
+			  break;
    case PLAYING:
 			// nygel timer
 			//timerN(0);
@@ -1268,6 +1275,10 @@ void render()
 			break;
 		case CREDITS:
 			showCredits(gl.yres, gl.xres);
+			break;
+		case 6:
+			//change_toInstr();
+			instructions(gl.yres, gl.xres);
 			break;
 	}
 
