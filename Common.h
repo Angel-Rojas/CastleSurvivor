@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <pthread.h>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>

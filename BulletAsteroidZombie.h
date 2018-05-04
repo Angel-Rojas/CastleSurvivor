@@ -2,7 +2,7 @@
 #include "defs.h"
 //#include "timers.cpp"
 #include <ctime>
-
+#include <unistd.h>
 class Ship {
 public:
         Vec dir;

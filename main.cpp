@@ -835,6 +835,8 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 	*/
 }
+
+//extern Vec moveZombie(*Vec,*Vec);
 void physics()
 {
 	/*Flt d0,d1,dist*/;
@@ -897,17 +899,21 @@ void physics()
 			break;
 		case PLAYING:
 			while (a) {
-				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT */
+			    //a->pos[0]=moveZombie(*a->pos[0],*a->vel[0]);
+				/* THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT*/
 				a->pos[0] += a->vel[0];
 				//this line will keep zombies from moving too the end
 				if (a->pos[0] <= 100) {
 				 a->pos[0] = 100;
+				 
 		// change the players health here
 		//loop for all zombies at the a->pos[0] to attack castle
 		//sleep the attack loop for a bit
 		//maybe call a function that does a countdown loop before it does the attack loop
 				State =  attackLoop(1,State);
-				playerState(State,gl.xres,gl.yres);
+				 //std::thread x(attackLoop(1,State),0,NULL);
+				//State = x;
+				 playerState(State,gl.xres,gl.yres);
 				}
 				//a->pos[1] += a->vel[1];
 				//Check for collision with window edges
@@ -1146,9 +1152,6 @@ void render()
 			void header(int , int, int, int);
 			//
 			header(gl.xres, gl.yres, gl.xres, gl.yres);
-			//wave timer -- nygel?
-			if (waveCountDown(gl.xres,gl.yres) == false)
-			    Game_mode = PAUSED;
 			//-------------christy timer-----
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
@@ -1160,6 +1163,45 @@ void render()
 			printName();
 			//-------------------------------
 			#endif
+			//wave timer -- nygel?
+			if (waveCountDown(gl.xres,gl.yres) == false){
+			//    Game_mode = PAUSED;
+			//else if (waveCountDown(gl.xres,gl.yres)== true){
+			    //g.ahead =NULL;
+			    for (int j=0; j<15; j++) {
+				Asteroid *a = new Asteroid;
+				a->nverts = 4;
+				a->vert[0][0] = 0;
+				a->vert[0][1] = 0;
+				a->vert[1][0] = 30;
+				a->vert[1][1] = 0;
+				a->vert[2][0] = 30;
+				a->vert[2][1] = 70;
+				a->vert[3][0] = 0;
+				a->vert[3][1] = 70;
+				//initializing zombie postion-----------------------
+				//initZombiePosition(gl.xres,zombie_pos);
+				a->pos[0] = gl.xres;
+				a->pos[1] = (Flt)(rand() % (gl.yres - 120));
+				a->pos[2] = 0.0f;
+				a->angle = 0.0;
+				a->rotate = rnd() * 4.0 - 2.0;
+				a->color[0] = rnd() + 0.4;
+				a->color[1] = rnd() + 0.3;
+				a->color[2] = rnd() + 0.2;
+				a->vel[0] = (Flt)(rnd() - 3);
+				a->vel[1] = (Flt)(rand()*2.0-1.0);
+				//std::cout << "asteroid" << std::endl;
+				//add to front of linked list
+				a->next = g.ahead;
+				if (g.ahead != NULL)
+				    g.ahead->prev = a;
+				g.ahead = a;
+				++g.nasteroids;	
+
+				}
+			}
+
 
 			playerState(State,gl.yres,gl.xres);
 			Rect r;

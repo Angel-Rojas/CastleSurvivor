@@ -7,11 +7,12 @@
 #include "nygelA.h"
 #include "fonts.h"
 #include <ctime>
+#include <math.h>
 #include "BulletAsteroidZombie.h"
 //#include "angelR.cpp"
 //globals
-int castleHealth = 100;
-int actualHealth = 100;
+int castleHealth = 1000;
+int actualHealth = 1000;
 #define gxres  1250
 #define gyres  900
 #define MAX_BULLETS  11
@@ -46,7 +47,7 @@ void timerN (double ts)
 
     static double timeLeft = 1.2e11;
     Rect r; 
-    r.bot = 500;
+    r.bot = gyres;
     r.left = 80;
     r.center = 0;
     ggprint8b(&r, 16, 0x00ff0000,"Nygel");
@@ -61,43 +62,52 @@ bool waveCountDown (int xres, int yres)
     //  randomMath();
 
 
-    static double timeLeft = 6000;
-    Rect r; 
-    r.bot = yres-100;
+    //static double timeLeft = 6000;
+    static double timeLeft = 0;
+    Rect r;
+   double time = 60 - timeLeft;
+   time *= 10e-1;
+   time = ceil(time); 
+    r.bot = yres-20;
     r.left = xres/2;
     r.center = 0;
-    ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",timeLeft);
-    timeLeft--;
-    if(timeLeft == 0 ){
-        timeLeft = 6000;
+    ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %i",(int)time);
+    timeLeft++;
+    if(time == 0 ){
+        timeLeft = 0;
         return false;
     }
     else
         return true;
 }
 
-int castleHealthToStates(int fullCh,int ch)
+int castleHealthToStates(int fullCh,int &ch)
 {
     //ch is castle health its the one actually decreasing
     //fullCH is castle health if full, should never change
     //full-75% health
-    if (ch >(fullCh/75)) {
+    if (ch > (fullCh*.75)) {
 	cout <<"\nclose to full\n";
-        return 1;
+        return 5;
     }
     //75-50% health
-    else if((fullCh/75) >= ch && ch > 50) {
+    else if((fullCh*.75) >= ch && ch > (fullCh*.5)) {
 	cout <<"\nclose to half\n";
-        return 2;
+        return 1;
     }
     //50-25% health
-    else if((fullCh/50) >= ch && ch > 0) {
+    else if((fullCh*.5) >= ch && ch > (fullCh*.25)) {
+	cout <<"\nless than half\n";
+        return 2;
+    }
+    else if((fullCh*.25) >= ch && ch > 1) {
 	cout <<"\nless than half\n";
         return 3;
     }
     //dead
     else {
 	cout <<"\ndead\n";
+	ch = 0;
         return 4;
     }
 }
@@ -108,21 +118,33 @@ int attackLoop(int zombies,int state)
 	//actualHealth is the actual amount left of health
     //attack loop
     for(int i =0; i <zombies; i++) {
-        actualHealth -= 5;
+        actualHealth -= 1;
         state = castleHealthToStates(castleHealth,actualHealth);
 	cout << "\n hit health:" << castleHealth <<": " << actualHealth<<endl;
     }
     //random math function to slow down so act as a sleep
-    int x = 100;
-    for (int i=0; i < 3e7; i++) {
-        x = x % 3 * 1.24 + 76.0 * x;
+  //  int x = 100;
+    for (int i=0; i < 3e3; i++) {
+        //x = x % 3 * 1.24 + 76.0 * x;
     }
+    //usleep(3);
+    cout << "state: "<< state<< endl;
     return state;
 }
 
 //void checkDeleteZombies(Asteroids &a, Bullet &b){
+/*Vec moveZombie(Vec pos, Vec vel){i
+    * THE FOLLOWING 2 LINES WILL MOVE OUR OBJECT *
+    pos += vel;
+    //this line will keep zombies from moving too the end
+    if (pos <= 100)
+	pos = 100;
+return pos;
 
+}
+*/
 Game::Game() {
+    srand(time(NULL));
     ahead = NULL;
     barr = new Bullet[MAX_BULLETS];
     nasteroids = 0;
@@ -154,15 +176,15 @@ Game::Game() {
         //initializing zombie postion-----------------------
         //initZombiePosition(gl.xres,zombie_pos);
         a->pos[0] = gxres;
-        a->pos[1] = (Flt)(rand() % gyres - 145);
+        a->pos[1] = (Flt)(rand() % (gyres - 120));
         a->pos[2] = 0.0f;
         a->angle = 0.0;
         a->rotate = rnd() * 4.0 - 2.0;
         a->color[0] = rnd() + 0.4;
         a->color[1] = rnd() + 0.3;
         a->color[2] = rnd() + 0.2;
-        a->vel[0] = -1;//(Flt)(rnd()*2.0-1.0);
-        a->vel[1] = (Flt)(rnd()*2.0-1.0);
+        a->vel[0] = (Flt)(rnd() - 3);
+        a->vel[1] = (Flt)(rand()*2.0-1.0);
         //std::cout << "asteroid" << std::endl;
         //add to front of linked list
         a->next = ahead;
