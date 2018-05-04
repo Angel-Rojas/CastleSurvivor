@@ -483,11 +483,11 @@ int main()
 		}
 		physics();
 		// Check to see if end of game (max zombies killed)
-		if (gl.counter == 5) {
+		if (gl.counter == 100) {
 			changeBoolean(Next);
 			//cout << "BEFORE RESET next:" << Next << endl;
 			gl.counter = 0;
-		} if (zombie_kills == 5 && Next == 1) {
+		} if (zombie_kills == 100 && Next == 1) {
 			endGameScreen();
 			//cout << " AFTER RESET next:" << Next << endl;
 			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
