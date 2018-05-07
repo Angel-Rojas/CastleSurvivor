@@ -1129,15 +1129,12 @@ void render()
 			//
 			header(gl.xres, gl.yres);
 			//wave timer -- nygel?
-<<<<<<< HEAD
 			//if (waveCountDown(gl.xres,gl.yres) == false)
 			//Game_mode = PAUSED;
 			//-------------christy timer-----
-=======
 		/*	if (waveCountDown(gl.xres,gl.yres) == false)
 			    Game_mode = PAUSED;
 		*/	//-------------christy timer-----
->>>>>>> nygel
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();

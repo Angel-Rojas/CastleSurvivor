@@ -78,7 +78,7 @@ bool waveCountDown (int xres, int yres)
     //static double timeLeft = 6000;
     static double timeLeft = 0;
     Rect r;
-   double time = 600 - timeLeft;
+   double time = 6000 - timeLeft;
    time *= 10e-3;
    time = ceil(time); 
     r.bot = yres-20;

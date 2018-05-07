@@ -231,7 +231,7 @@ void gameOver(int xrespos, int yrespos)
 	text.left = xrespos/HALVED;
 	text.center = 1;
 	ggprint8b(&text, 16, red, "Game OVER!");
-	ggprint8b(&text, 16, gold, "T - Try again sadface");
+	ggprint8b(&text, 16, gold, "B - go Back, Try again sadface");
     return;
 }
 
