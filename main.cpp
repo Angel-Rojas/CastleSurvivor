@@ -892,7 +892,10 @@ void physics()
 		//loop for all zombies at the a->pos[0] to attack castle
 		//sleep the attack loop for a bit
 		//maybe call a function that does a countdown loop before it does the attack loop
-				State =  attackLoop(1,State);
+				
+				 State =  attackLoop(1,State);
+				 if(State == 4)
+				     Game_mode = GAME_OVER;
 				 //std::thread x(attackLoop(1,State),0,NULL);
 				//State = x;
 				 playerState(State,gl.xres,gl.yres);
@@ -923,6 +926,7 @@ void physics()
 			//Game_mode set to WIN
 			break;
 		case GAME_OVER:
+
 			//Game_mode set to GAMEOVER
 			break;
 		case CREDITS:
@@ -1124,9 +1128,9 @@ void render()
 			//
 			header(gl.xres, gl.yres);
 			//wave timer -- nygel?
-			if (waveCountDown(gl.xres,gl.yres) == false)
+		/*	if (waveCountDown(gl.xres,gl.yres) == false)
 			    Game_mode = PAUSED;
-			//-------------christy timer-----
+		*/	//-------------christy timer-----
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
 			timer();
