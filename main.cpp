@@ -1098,7 +1098,7 @@ void render()
       // glEnd();
 
         void castle(int, int, int, int);
-        castle(0,0 ,100 ,640);
+        castle(0,0 ,100 ,gl.yres);
 	
         //bullets
 	    for (int i=0; i<g.nbullets; i++) {
@@ -1125,8 +1125,8 @@ void render()
 			//
 			header(gl.xres, gl.yres);
 			//wave timer -- nygel?
-			if (waveCountDown(gl.xres,gl.yres) == false)
-			    Game_mode = PAUSED;
+			//if (waveCountDown(gl.xres,gl.yres) == false)
+			//Game_mode = PAUSED;
 			//-------------christy timer-----
 			//
 			#ifdef PROFILING_OFF //----turns of the timer are the print name
