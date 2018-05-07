@@ -59,14 +59,14 @@ void timerN (double ts)
 void death()
 {
         //Game_mode = PAUSED;
-        //Game_mode = 4;
+        //gameMode = 4;
         Rect death;
         death.bot = gyres - 190;
         death.left = gyres/2;
         death.center = 1;
         ggprint8b(&death, 16,0x00ff0000 , "Game Over");
         //ggprint8b(&paused, 16, lt_blue, "");
-    return;
+    //urn gameMode;
 }
 bool waveCountDown (int xres, int yres)
 {
@@ -78,7 +78,7 @@ bool waveCountDown (int xres, int yres)
     //static double timeLeft = 6000;
     static double timeLeft = 0;
     Rect r;
-   double time = 6000 - timeLeft;
+   double time = 600 - timeLeft;
    time *= 10e-3;
    time = ceil(time); 
     r.bot = yres-20;
@@ -122,6 +122,7 @@ int castleHealthToStates(int fullCh,int &ch)
 	cout <<"\ndead\n";
 	ch = 0;
 	death();
+	//gameMode = 4;
         return 4;
     }
 }
