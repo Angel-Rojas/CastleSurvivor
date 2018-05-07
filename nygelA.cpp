@@ -190,7 +190,7 @@ Game::Game() {
         //initializing zombie postion-----------------------
         //initZombiePosition(gl.xres,zombie_pos);
         a->pos[0] = gxres;
-        a->pos[1] = (Flt)(rand() % (gyres - 120));
+        a->pos[1] = (Flt)(rand() % (gyres - 135));
         a->pos[2] = 0.0f;
         a->angle = 0.0;
         a->rotate = rnd() * 4.0 - 2.0;
