@@ -598,7 +598,7 @@ void check_mouse(XEvent *e)
         }
       } else {
         if (savex>=0&&savex<=1249&&savey>=0&&savey<=90) {
-          Game_mode = PAUSED;
+          //Game_mode = PAUSED;
           // printf("pressed Game_mode(2)\n");
         }
       }
