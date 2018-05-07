@@ -734,7 +734,8 @@ int check_keys(XEvent *e)
 			//gl.State = 1;
 			//cout << "State(health) changed to 3/4s" << gl.State << endl;
 			State = 4;
-			Game_mode = 4;
+			//Game_mode = 4;
+			gameOver(gl.xres,gl.yres);
 			break;
 		case XK_t:
 			startOver(zombie_kills,State,Game_mode);
