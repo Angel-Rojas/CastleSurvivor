@@ -114,7 +114,8 @@ extern void reinitGameLevel(int waveLevel);
 extern int buttonPressed(int x, int y, int game_mode);
 
 //-------------------------------------------------------------------------
-class Image {
+
+/*class Image {
 public:
 	int width, height;
 	unsigned char *data;
@@ -122,21 +123,23 @@ public:
 	Image(const char *fname) {
 		if (fname[0] == '\0')
 			return;
-		//printf("fname **%s**\n", fname);
+		int ppmFlag = 0;
 		char name[40];
 		strcpy(name, fname);
 		int slen = strlen(name);
-		name[slen-4] = '\0';
-		//printf("name **%s**\n", name);
-		// char ppmname[80];
-		// sprintf(ppmname,"%s.ppm", name);
-		// //printf("ppmname **%s**\n", ppmname);
-		// char ts[100];
-		// //system("convert eball.jpg eball.ppm");
-		// sprintf(ts, "convert %s %s", fname, ppmname);
-		// system(ts);
-		//sprintf(ts, "%s", name);
-		FILE *fpi = fopen(fname, "r");
+		char ppmname[80];
+		if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+			ppmFlag = 1;
+		if (ppmFlag) {
+			strcpy(ppmname, name);
+		} else {
+			name[slen-4] = '\0';
+			sprintf(ppmname,"%s.ppm", name);
+			char ts[100];
+			sprintf(ts, "convert %s %s", fname, ppmname);
+			system(ts);
+		}
+		FILE *fpi = fopen(ppmname, "r");
 		if (fpi) {
 			char line[200];
 			fgets(line, 200, fpi);
@@ -147,20 +150,30 @@ public:
 			sscanf(line, "%i %i", &width, &height);
 			fgets(line, 200, fpi);
 			//get pixel data
-			int n = width * height * 3;
-			data = new unsigned char[n];
+			int n = width * height * 3;			
+			data = new unsigned char[n];			
 			for (int i=0; i<n; i++)
 				data[i] = fgetc(fpi);
 			fclose(fpi);
 		} else {
-			printf("ERROR opening image: %s\n",fname);
+			printf("ERROR opening image: %s\n",ppmname);
 			exit(0);
 		}
-		// unlink(ppmname);
+		if (!ppmFlag)
+			unlink(ppmname);
 	}
 };
-Image img[1] = {"./images/background.ppm"};
+Image img[2] = {
+"images/background.png",
+"images/zombie1.png" };
 
+GLuint backgroundTexture;
+GLuint zombie1Texture;
+Image *backgroundImage = NULL;
+Image *zombie1Image= NULL;
+*/
+//----
+/*
 class Texture {
 public:
 	Image *backImage;
@@ -168,18 +181,18 @@ public:
 	float xc[2];
 	float yc[2];
 };
-
-
+//-------------
+*/
 class Global {
 public:
-	//--christy
-	GLuint backgroundTexture;
-	GLuint zombie1Texture;
-	int background;
-	int zombie1;
-	//--
+	//----texture stuff christy
+	//GLuint backgroundTexture;
+	//GLuint zombie1Texture;
+	//int background;
+	//int zombie1;
+	//--------
 
-  Texture tex;
+//  Texture tex;
 
 	int counter;
 	int xres, yres;
@@ -192,12 +205,12 @@ public:
 		yres = 900;
 		playTime = 0.0;
 		memset(keys, ZERO, 65536);
-		//--christy
-		background=1;
-		zombie1=1;
-    Game_mode = NEW_GAME;
-    nbutton = 0;
-		//--
+		//-----christy
+		//background=1;
+		//zombie1=1;
+		//----------
+    	Game_mode = NEW_GAME;
+    	nbutton = 0;
 	}
 } gl;
 
@@ -466,6 +479,8 @@ int main()
 {
 
 	// logOpen();
+    extern void image_opengl();
+    image_opengl();
 	init_opengl();
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
@@ -498,6 +513,42 @@ int main()
 	return 0;
 }
 
+/*unsigned char *buildAlphaData(Image *img)
+{
+	//add 4th component to RGB stream...
+	int i;
+	int a,b,c;
+	unsigned char *newdata, *ptr;
+	unsigned char *data = (unsigned char *)img->data;
+	newdata = (unsigned char *)malloc(img->width * img->height * 4);
+	ptr = newdata;
+	for (i=0; i<img->width * img->height * 3; i+=3) {
+		a = *(data+0);
+		b = *(data+1);
+		c = *(data+2);
+		*(ptr+0) = a;
+		*(ptr+1) = b;
+		*(ptr+2) = c;
+		//-----------------------------------------------
+		//get largest color component...
+		//(ptr+3) = (unsigned char)((
+		//		(int)*(ptr+0) +
+		//		(int)*(ptr+1) +
+		//		(int)*(ptr+2)) / 3);
+		//d = a;
+		//if (b >= a && b >= c) d = b;
+		//if (c >= a && c >= b) d = c;
+		//(ptr+3) = d;
+		//-----------------------------------------------
+		//this code optimizes the commented code above.
+		*(ptr+3) = (a|b|c);
+		//-----------------------------------------------
+		ptr += 4;
+		data += 3;
+	}
+	return newdata;
+}
+*/
 void init_opengl()
 {
 	//OpenGL initialization
@@ -518,10 +569,35 @@ void init_opengl()
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
-	//  CHRISTY
-	//glGenTextures(1, &g.bigfootTexture);
-	//glGenTextures(1, &g.silhouetteTexture);
+	//---CHRISTY
+	/*int w, h;
 
+	backgroundImage = &img[0];
+	zombie1Image = &img[1];
+
+	glGenTextures(1, backgroundTexture);
+	glGenTextures(1, zombie1Texture);
+	
+	//background textures
+	w = backgroundImage->width;
+	h = backgroundImage->height;
+	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+		GL_RGB, GL_UNSIGNED_BYTE, backgroundImage->data);
+	//zombie
+	w = zombie1Image->width;
+	h = zombie1Image->width;
+	glBindTexture(GL_TEXTURE_2D, zombie1Texture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+ 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+		GL_RGB, GL_UNSIGNED_BYTE, zombie1->data);
+	
+	
+	glBindTexture(GL_Texture_2D, 0);
+    *///----------------
   // //load the images file.
 	// gl.tex.backImage = &img[0];
 	// //create opengl texture elements
@@ -1075,46 +1151,12 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
-	Bullet *b = &g.barr[0];
-	for (int i=0; i<g.nbullets; i++) {
-		//Log("draw bullet...\n");
-		glColor3f(1.0, 1.0, 1.0);
-		glBegin(GL_POINTS);
-			glVertex2f(b->pos[0],      b->pos[1]);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-			glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-			glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-			glColor3f(0.8, 0.8, 0.8);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-		glEnd();
-		++b;
-		}
+    Bullet *b = &g.barr[0];
+
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
     case NEW_GAME:
-      /*Bullet *b = &g.barr[0];
-      for (int i=0; i<g.nbullets; i++) {
-        //Log("draw bullet...\n");
-        glColor3f(1.0, 1.0, 1.0);
-        glBegin(GL_POINTS);
-          glVertex2f(b->pos[0],      b->pos[1]);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-          glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-          glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-          glColor3f(0.8, 0.8, 0.8);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-          glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-          glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-        glEnd();
-        ++b;
-        } */
-      displayMenu(gl.yres, gl.xres);
+            displayMenu(gl.yres, gl.xres);
       break;
    case PLAYING:
 			// nygel timer
@@ -1130,10 +1172,33 @@ void render()
       //   glTexCoord2f(gl.tex.xc[1], gl.tex.yc[1]); glVertex2i(gl.xres, 0);
       // glEnd();
 
+        void castle(int, int, int, int);
+        castle(0,0 ,100 ,640);
+	
+        //bullets
+	    for (int i=0; i<g.nbullets; i++) {
+		    //Log("draw bullet...\n");
+		    glColor3f(1.0, 1.0, 1.0);
+		    glBegin(GL_POINTS);
+			    glVertex2f(b->pos[0],      b->pos[1]);
+			    glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+			    glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+			    glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+			    glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+			    glColor3f(0.8, 0.8, 0.8);
+			    glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+			    glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+			    glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+			    glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+		    glEnd();
+		    ++b;
+		}
+
+
 			//------------christy header------
-			void header(int , int, int, int);
+			void header(int, int);
 			//
-			header(gl.xres, gl.yres, gl.xres, gl.yres);
+			header(gl.xres, gl.yres);
 			//wave timer -- nygel?
 			if (waveCountDown(gl.xres,gl.yres) == false)
 			    Game_mode = PAUSED;
@@ -1146,6 +1211,7 @@ void render()
 			void printName();
 			//
 			printName();
+
 			//-------------------------------
 			#endif
 
@@ -1231,25 +1297,6 @@ void render()
 				}
 			}
 			//----------------
-			//Draw the bullets
-			/*Bullet *b = &g.barr[0];
-			for (int i=0; i<g.nbullets; i++) {
-				//Log("draw bullet...\n");
-				glColor3f(1.0, 1.0, 1.0);
-				glBegin(GL_POINTS);
-					glVertex2f(b->pos[0],      b->pos[1]);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-					glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-					glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-					glColor3f(0.8, 0.8, 0.8);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-					glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-					glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-				glEnd();
-				++b;
-				}*/
 			angelsTimer(gl.xres,gl.yres);
 			break;
 		case PAUSED:
@@ -1265,5 +1312,8 @@ void render()
 			showCredits(gl.yres, gl.xres);
 			break;
 	}
+    
+    
+    
 
 }
