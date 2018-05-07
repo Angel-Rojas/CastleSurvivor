@@ -11,8 +11,9 @@
 #include "BulletAsteroidZombie.h"
 //#include "angelR.cpp"
 //globals
-int castleHealth = 1000;
-int actualHealth = 1000;
+int castleHealth = 1000 ;
+int actualHealth = 1000 ;
+
 #define gxres  1250
 #define gyres  900
 #define MAX_BULLETS  11
@@ -55,6 +56,18 @@ void timerN (double ts)
     ggprint8b(&r, 16, 0x00ff0000,"TIME LEFT: %f",(timeLeft-randomMath()));
 }
 
+void death()
+{
+        //Game_mode = PAUSED;
+        //Game_mode = 4;
+        Rect death;
+        death.bot = gyres - 190;
+        death.left = gyres/2;
+        death.center = 1;
+        ggprint8b(&death, 16,0x00ff0000 , "Game Over");
+        //ggprint8b(&paused, 16, lt_blue, "");
+    return;
+}
 bool waveCountDown (int xres, int yres)
 {
     //smallest time unti 10^-9s
@@ -65,8 +78,8 @@ bool waveCountDown (int xres, int yres)
     //static double timeLeft = 6000;
     static double timeLeft = 0;
     Rect r;
-   double time = 60 - timeLeft;
-   time *= 10e-1;
+   double time = 6000 - timeLeft;
+   time *= 10e-3;
    time = ceil(time); 
     r.bot = yres-20;
     r.left = xres/2;
@@ -108,6 +121,7 @@ int castleHealthToStates(int fullCh,int &ch)
     else {
 	cout <<"\ndead\n";
 	ch = 0;
+	death();
         return 4;
     }
 }

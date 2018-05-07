@@ -3,6 +3,8 @@
 //#include "timers.cpp"
 #include <ctime>
 #include <unistd.h>
+extern int castleHealth;
+extern int actualHealth;
 class Ship {
 public:
         Vec dir;
