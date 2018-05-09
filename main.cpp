@@ -1082,10 +1082,29 @@ void render()
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
     Bullet *b = &g.barr[0];
 
+    void iTex(int, int);
+    void logoTexture(int, int);
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
     case NEW_GAME:
-            displayMenu(gl.yres, gl.xres);
+ //---------logo
+    extern GLuint logoTex;
+     glClearColor(1.0, 1.0, 1.0, 0.8);
+     glPushMatrix();
+     glEnable(GL_ALPHA_TEST);
+     glAlphaFunc(GL_GREATER, 0.0f);
+     glBindTexture(GL_TEXTURE_2D, logoTex);
+     glBegin(GL_QUADS);
+        glTexCoord2f(1.0f, 1.0f);glVertex2f(gl.xres-190,gl.yres-300);
+        glTexCoord2f(1.0f, 0.0f);glVertex2f(gl.xres-190,100);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(190,100);
+        glTexCoord2f(0.0f, 1.0f);glVertex2f(190,gl.yres-300);
+        glEnd();
+     glBindTexture(GL_TEXTURE_2D, 0);
+     glDisable(GL_ALPHA_TEST);
+     glPopMatrix();
+        logoTexture(gl.xres,gl.yres);    
+        displayMenu(gl.yres, gl.xres);
       break;
    case PLAYING:
 			// nygel timer
@@ -1101,9 +1120,63 @@ void render()
       //   glTexCoord2f(gl.tex.xc[1], gl.tex.yc[1]); glVertex2i(gl.xres, 0);
       // glEnd();
 
-        void castle(int, int, int, int);
-        castle(0,0 ,100 ,gl.yres);
-	
+        //------------christy textures------
+        //background
+        extern GLuint backTex;
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3f(1.0,1.0,1.0);
+        glBindTexture(GL_TEXTURE_2D, backTex);
+        glBegin(GL_QUADS);
+        //float w = (625/1250);
+        //float h = (450/900);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);		
+        iTex(gl.xres, gl.yres);
+        //----bar
+        extern GLuint barTex;
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3f(0.6f, 0.6f, 0.6f);
+        glBindTexture(GL_TEXTURE_2D, barTex);
+        glBegin(GL_QUADS);
+        //bl
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(0,50);
+        //ul
+        glTexCoord2f(0.0f, 1.0f);glVertex2f(0,gl.yres-60);
+        //ur
+        glTexCoord2f(1.0f, 1.0f);glVertex2f(gl.xres-1150,gl.yres-60);
+        //br
+        glTexCoord2f(1.0f, 0.0f);glVertex2f(gl.xres-1150,50);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        iTex(gl.xres, gl.yres);
+         //---castle
+        extern GLuint castleTex;
+        glClear(GL_COLOR_BUFFER_BIT);
+        glPushMatrix();
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glBindTexture(GL_TEXTURE_2D, castleTex);
+        glBegin(GL_QUADS);
+        //bl
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(-20,250);
+        //ul
+        glTexCoord2f(0.0f, 1.0f);glVertex2f(-20,gl.yres-250);
+        //ur
+        glTexCoord2f(1.0f, 1.0f);glVertex2f(gl.xres-1150,gl.yres-250);
+        //br
+        glTexCoord2f(1.0f, 0.0f);glVertex2f(gl.xres-1150,250);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_ALPHA_TEST);
+        glPopMatrix();
+        iTex(gl.xres, gl.yres);
+    //    void header(int, int);
+     //   header(gl.xres, gl.yres);
+        //-----------------------------------------
         //bullets
 	    for (int i=0; i<g.nbullets; i++) {
 		    //Log("draw bullet...\n");
@@ -1124,11 +1197,7 @@ void render()
 		}
 
 
-			//------------christy header------
-			void header(int, int);
-			//
-			header(gl.xres, gl.yres);
-			//wave timer -- nygel?
+					//wave timer -- nygel?
 			//if (waveCountDown(gl.xres,gl.yres) == false)
 			//Game_mode = PAUSED;
 			//-------------christy timer-----
@@ -1247,22 +1316,47 @@ void render()
 				Asteroid *a = g.ahead;
 				while (a) {
 					//Log("draw asteroid...\n");
-					glColor3fv(a->color);
+					//glColor3fv(a->color);
+					glColor3f(1.0f, 1.0f, 1.0f);
 					glPushMatrix();
 					glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-					glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+					//glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 					// change from LINE_LOOP to POLYGON to fill color
-					glBegin(GL_POLYGON);
-						//Log("%i verts\n",a->nverts);
-						for (int j=0; j<a->nverts; j++) {
-							glVertex2f(a->vert[j][0], a->vert[j][1]);
-						}
-					glEnd();
-					glPopMatrix();
-					glColor3f(1.0f, 0.0f, 0.0f);
-					// below is where the Red Center Dot is made
 					//glBegin(GL_POLYGON);
-					//	glVertex2f(a->pos[0], a->pos[1]);
+			
+                    //Log("%i verts\n",a->nverts);
+                   // float width = 40.0f;
+          /*  extern GLuint zombieTex;
+            glEnable(GL_TEXTURE_2D);
+            glPushMatrix();
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GREATER, 0.0f);
+            glBegin(GL_QUADS);
+            //bl
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,width);
+            //ul
+            glTexCoord2f(0.0f, 1.0f);glVertex2f(-width,-width);
+            //ur
+            glTexCoord2f(1.0f, 1.0f);glVertex2f(width,-width);
+            //br
+            glTexCoord2f(1.0f, 0.0f);glVertex2f(width,width);
+           // glEnd();
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_ALPHA_TEST);
+            //glPopMatrix();
+           */         void zomTex();
+						//for (int j=0; j<a->nverts; j++) {
+						//	glVertex2f(a->vert[j][0], a->vert[j][1]);
+                            
+                           zomTex();
+					//	}
+					glPopMatrix();
+				//	glEnd();
+				//	glPopMatrix();
+				//	glColor3f(1.0f, 0.0f, 0.0f);
+					// below is where the Red Center Dot is made
+					glBegin(GL_POINTS);
+					glVertex2f(a->pos[0], a->pos[1]);
 					glEnd();
 					a = a->next;
 				}
