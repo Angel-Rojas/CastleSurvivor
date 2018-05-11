@@ -78,7 +78,7 @@ bool waveCountDown (int xres, int yres)
     //static double timeLeft = 6000;
     static double timeLeft = 0;
     Rect r;
-   double time = 6000 - timeLeft;
+   double time = 2000 - timeLeft; // 6000 - timeLeft;
    time *= 10e-3;
    time = ceil(time); 
     r.bot = yres-20;
@@ -139,9 +139,9 @@ int attackLoop(int zombies,int state)
     }
     //random math function to slow down so act as a sleep
   //  int x = 100;
-    for (int i=0; i < 3e3; i++) {
+   // for (int i=0; i < 3e3; i++) {
         //x = x % 3 * 1.24 + 76.0 * x;
-    }
+   // }
     //usleep(3);
     cout << "state: "<< state<< endl;
     return state;
