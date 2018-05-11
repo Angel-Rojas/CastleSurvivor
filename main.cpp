@@ -449,6 +449,7 @@ int main()
 			//cout << " AFTER RESET next:" << Next << endl;
 			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
 		} else {
+			printf("render\n");
 			render();
 		}
 		x11.swapBuffers();
@@ -1088,6 +1089,8 @@ void render()
 		// The below case is the MAIN RENDER function
     case NEW_GAME:
  //---------logo
+ 		State = 1;
+		actualHealth = castleHealth;
     extern GLuint logoTex;
      glClearColor(1.0, 1.0, 1.0, 0.8);
      glPushMatrix();
