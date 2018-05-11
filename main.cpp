@@ -1292,10 +1292,50 @@ void physics()
 			   if (waveCountDown(gl.xres,gl.yres) == false){
 			       //    Game_mode = PAUSED;
 			       //else if (waveCountDown(gl.xres,gl.yres)== true){
-			       //g.ahead =NULL;
-			       regenerateZombies();
+                   //g.ahead =NULL;
+                   //  regenerateZombies();
+                   for (int j=0; j<15; j++) {
+                       Asteroid *a = new Asteroid;
+                       a->nverts = 4;
+                       //a->radius = 80.0 + 40.0;
+                       //Flt r2 = a->radius / 2.0;
+                       //Flt angle = 90.0f;
+                       //Flt inc = (PI * 2.0) / (Flt)a->nverts;
+                       /*for (int i=0; i<a->nverts; i++) {
+                         a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+                         a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+                         angle += inc;
+                         }*/
+                       //zombies are 30 wide x 70 high
+                       a->vert[0][0] = 0;
+                       a->vert[0][1] = 0;
+                       a->vert[1][0] = 30;
+                       a->vert[1][1] = 0;
+                       a->vert[2][0] = 30;
+                       a->vert[2][1] = 70;
+                       a->vert[3][0] = 0;
+                       a->vert[3][1] = 70;
+                       //initializing zombie postion-----------------------
+                       //initZombiePosition(gl.xres,zombie_pos);
+                       a->pos[0] = gl.xres;
+                       a->pos[1] = (Flt)(rand() % (gl.yres - 135));
+                       a->pos[2] = 0.0f;
+                       a->angle = 0.0;
+                       a->rotate = rnd() * 4.0 - 2.0;
+                       a->color[0] = rnd() + 0.4;
+                       a->color[1] = rnd() + 0.3;
+                       a->color[2] = rnd() + 0.2;
+                       a->vel[0] = (Flt)(rnd() - 3);
+                       a->vel[1] = (Flt)(rand()*2.0-1.0);
+                       //std::cout << "asteroid" << std::endl;
+                       //add to front of linked list
+                       a->next = g.ahead;
+                       if (g.ahead != NULL)
+                           g.ahead->prev = a;
+                       g.ahead = a;
+                       ++g.nasteroids;
+                   }
 			   }
-
 
 			   playerState(State,gl.yres,gl.xres);
 			   Rect r;
