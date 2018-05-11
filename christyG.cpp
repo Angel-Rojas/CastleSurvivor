@@ -74,7 +74,7 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[5] = {"images/castle2.png","images/castlebricks.jpg", "images/grasstest_1.png","images/zombie2.png", "images/logo.png"};
+Image img[5] = {"images/castle2.png","images/castlebricks.jpg", "images/grasstest_1.png","images/zomb2.png", "images/logo.png"};
 GLuint castleTex;
 GLuint barTex;
 GLuint backTex;
@@ -177,10 +177,11 @@ void image_opengl(void)
   //zombie
     w = zombieImage->width;
     h = zombieImage->height;
+    unsigned char *zombieData = buildAlphaData(zombieImage);
     glBindTexture(GL_TEXTURE_2D, zombieTex);
    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,GL_RGB, GL_UNSIGNED_BYTE, zombieImage->data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,GL_RGBA, GL_UNSIGNED_BYTE, zombieData);
     //-----------------------
     //logo
     w = logoImage->width;
@@ -208,7 +209,7 @@ void printName()
 void iTex(int x, int y)
 {
  //-----------background
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+   // glClearColor(1.0, 1.0, 1.0, 1.0);
 	//glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
    	glEnable(GL_ALPHA_TEST);
@@ -227,9 +228,9 @@ void iTex(int x, int y)
     glPopMatrix();
 
    //---------castle brick bar
-    glClearColor(1.0, 1.0, 1.0, 0.8);
+   // glClearColor(1.0, 1.0, 1.0, 0.8);
    // glClear(GL_COLOR_BUFFER_BIT);
-  //  glColor3f(0.6f, 0.6f, 0.6f);
+    glColor3f(0.6f, 0.6f, 0.6f);
     glPushMatrix();
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
@@ -278,11 +279,13 @@ void logoTexture(int x, int y){
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
     glBindTexture(GL_TEXTURE_2D, logoTex);
+    glRotatef(-1.1, 0.0f, 0.0f, 1.0f);
+    glTranslatef(0, 170, 0);
     glBegin(GL_QUADS);
-	    glTexCoord2f(1.0f, 1.0f);glVertex2f(x-190,y-300);
-		glTexCoord2f(1.0f, 0.0f);glVertex2f(x-190, 100);
-    	glTexCoord2f(0.0f, 0.0f); glVertex2f(190,100);
-		glTexCoord2f(0.0f, 1.0f);glVertex2f(190,y-300);
+	glTexCoord2f(1.0f, 1.0f);glVertex2f(x-400,y-250);
+	glTexCoord2f(1.0f, 0.0f);glVertex2f(x-400, 400);
+    	glTexCoord2f(0.0f, 0.0f); glVertex2f(400,400);
+	glTexCoord2f(0.0f, 1.0f);glVertex2f(400,y-250);
 	glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);

@@ -1141,8 +1141,10 @@ void render()
 	//-- DO NOT TRY TO PRINT TEXT ABOVE THIS LINE ---
     Bullet *b = &g.barr[0];
 
-    void iTex(int, int);
-    void logoTexture(int, int);
+    	void iTex(int, int);
+    	void logoTexture(int, int);
+    
+     	 void zomTex();
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
     case NEW_GAME: {
@@ -1150,7 +1152,7 @@ void render()
  		// health had to reset, state
  		State = 0;
 		actualHealth = castleHealth;
-    extern GLuint logoTex;
+    /*extern GLuint logoTex;
      glClearColor(1.0, 1.0, 1.0, 0.8);
      glPushMatrix();
      glEnable(GL_ALPHA_TEST);
@@ -1164,7 +1166,7 @@ void render()
         glEnd();
      glBindTexture(GL_TEXTURE_2D, 0);
      glDisable(GL_ALPHA_TEST);
-     glPopMatrix();
+     glPopMatrix();*/
         logoTexture(gl.xres,gl.yres);
         displayMenu(gl.yres, gl.xres);
       break;
@@ -1188,7 +1190,7 @@ void render()
       // glEnd();
 
         //------------christy textures------
-        //background
+      /*  //background
         extern GLuint backTex;
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(1.0,1.0,1.0);
@@ -1239,7 +1241,7 @@ void render()
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_ALPHA_TEST);
-        glPopMatrix();
+        glPopMatrix();*/
         iTex(gl.xres, gl.yres);
     //    void header(int, int);
      //   header(gl.xres, gl.yres);
@@ -1361,8 +1363,8 @@ void render()
 					//glBegin(GL_POLYGON);
 
                     //Log("%i verts\n",a->nverts);
-                   // float width = 40.0f;
-          /*  extern GLuint zombieTex;
+            /*        float width = 40.0f;
+            extern GLuint zombieTex;
             glEnable(GL_TEXTURE_2D);
             glPushMatrix();
             glEnable(GL_ALPHA_TEST);
@@ -1379,12 +1381,11 @@ void render()
            // glEnd();
             glBindTexture(GL_TEXTURE_2D, 0);
             glDisable(GL_ALPHA_TEST);
-            //glPopMatrix();
-           */         void zomTex();
-						//for (int j=0; j<a->nverts; j++) {
-						//	glVertex2f(a->vert[j][0], a->vert[j][1]);
-
-                           zomTex();
+            //glPopMatrix();*/
+					//for (int j=0; j<a->nverts; j++) {
+					//	glVertex2f(a->vert[j][0], a->vert[j][1]);
+					glClearColor(0.0,0.0,0.0,0.8);
+                           		zomTex();
 					//	}
 					glPopMatrix();
 				//	glEnd();

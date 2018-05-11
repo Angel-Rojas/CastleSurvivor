@@ -225,7 +225,8 @@ void pauseGame(int xrespos, int yrespos)
 void gameOver(int xrespos, int yrespos)
 {
 	//Game_mode = END;
-	Game_mode = 4;
+	glClearColor(0.0,0.0,0.0,0.8);
+    	Game_mode = 4;
 	Rect text;
 	text.bot = yrespos - 190;
 	text.left = xrespos/HALVED;
@@ -340,10 +341,10 @@ void checkNextLevel()
 void displayMenu(int yrespos, int xrespos)
 {
 	Rect menu;
-	menu.bot = yrespos - 215;
+	menu.bot = yrespos - 310;
 	menu.left = xrespos/HALVED;
 	menu.center = 1;
-	ggprint8b(&menu, 16, yellow, "Game Menu");
+	ggprint8b(&menu, 16, gold, "Game Menu");
 	//
 	static float angle = 0.0;
 	xPosition = xrespos/HALVED - 70;
@@ -612,9 +613,11 @@ void instructions(int yres, int xres)
 	ggprint8b(&text, 16, lt_blue, "<-- press 'b' to go back!");
 	text.bot = (yres / 2) + 40;
 	text.left = xres / 2;
+	glClearColor(0.0,0.0,0.0, 0.8);
+	glColor3f(0.0,0.0,0);
 	ggprint8b(&text, 16, lt_blue, "B - to go back to Menu");
 	ggprint8b(&text, 16, navy_green, "C - to view credits");
-	ggprint8b(&text, 16, yellow, "Just click to shoot zombies, dummy!");
+	ggprint8b(&text, 16, gold, "Just click to shoot zombies, dummy!");
 }
 
 void change_toInstr()
