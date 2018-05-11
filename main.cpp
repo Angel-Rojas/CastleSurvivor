@@ -486,7 +486,7 @@ void init_opengl()
 
 	glGenTextures(1, backgroundTexture);
 	glGenTextures(1, zombie1Texture);
-	
+
 	//background textures
 	w = backgroundImage->width;
 	h = backgroundImage->height;
@@ -503,8 +503,8 @@ void init_opengl()
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
  	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 		GL_RGB, GL_UNSIGNED_BYTE, zombie1->data);
-	
-	
+
+
 	glBindTexture(GL_Texture_2D, 0);
     *///----------------
   // //load the images file.
@@ -888,12 +888,12 @@ void physics()
 				//this line will keep zombies from moving too the end
 				if (a->pos[0] <= 100) {
 				 a->pos[0] = 100;
-				 
+
 		// change the players health here
 		//loop for all zombies at the a->pos[0] to attack castle
 		//sleep the attack loop for a bit
 		//maybe call a function that does a countdown loop before it does the attack loop
-				
+
 				 State =  attackLoop(1,State);
 				 if(State == 4)
 				     Game_mode = GAME_OVER;
@@ -944,7 +944,7 @@ void physics()
 	//   2. break the asteroid into pieces
 	//      if asteroid small, delete it
 	a = g.ahead;
-	while (a) {
+	while (a != NULL) {
 		//is there a bullet within its radius?
 		int i=0;
 		while (i < g.nbullets) {
@@ -972,7 +972,7 @@ void physics()
 					// Follow 2 lines are used as tracking numbers
 					incrementZombiesKilled(zombie_kills);
 					gl.counter++;
-				if (a->radius > MINIMUM_ASTEROID_SIZE) {
+				if (a != NULL && a->radius > MINIMUM_ASTEROID_SIZE) { /// this was causing a segmentfault because (a == NULL)
 					/* THE FOLLOWING COMMENTED CODE BREAKS UP AN OBJECT INTO
 					 * LITTLER OBJECTS
 						//break it into pieces.
@@ -1103,7 +1103,7 @@ void render()
      glBindTexture(GL_TEXTURE_2D, 0);
      glDisable(GL_ALPHA_TEST);
      glPopMatrix();
-        logoTexture(gl.xres,gl.yres);    
+        logoTexture(gl.xres,gl.yres);
         displayMenu(gl.yres, gl.xres);
       break;
    case PLAYING:
@@ -1134,7 +1134,7 @@ void render()
         glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
         glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
         glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);		
+        glBindTexture(GL_TEXTURE_2D, 0);
         iTex(gl.xres, gl.yres);
         //----bar
         extern GLuint barTex;
@@ -1249,7 +1249,7 @@ void render()
 				if (g.ahead != NULL)
 				    g.ahead->prev = a;
 				g.ahead = a;
-				++g.nasteroids;	
+				++g.nasteroids;
 
 				}
 			}
@@ -1323,7 +1323,7 @@ void render()
 					//glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 					// change from LINE_LOOP to POLYGON to fill color
 					//glBegin(GL_POLYGON);
-			
+
                     //Log("%i verts\n",a->nverts);
                    // float width = 40.0f;
           /*  extern GLuint zombieTex;
@@ -1347,7 +1347,7 @@ void render()
            */         void zomTex();
 						//for (int j=0; j<a->nverts; j++) {
 						//	glVertex2f(a->vert[j][0], a->vert[j][1]);
-                            
+
                            zomTex();
 					//	}
 					glPopMatrix();
@@ -1381,8 +1381,8 @@ void render()
 			instructions(gl.yres, gl.xres);
 			break;
 	}
-    
-    
-    
+
+
+
 
 }

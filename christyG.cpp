@@ -60,8 +60,8 @@ public:
 			sscanf(line, "%i %i", &width, &height);
 			fgets(line, 200, fpi);
 			//get pixel data
-			int n = width * height * 3;			
-			data = new unsigned char[n];			
+			int n = width * height * 3;
+			data = new unsigned char[n];
 			for (int i=0; i<n; i++)
 				data[i] = fgetc(fpi);
 			fclose(fpi);
@@ -162,9 +162,9 @@ void image_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,GL_RGB, GL_UNSIGNED_BYTE, barImage->data);
-   
-   
-   
+
+
+
    //----------------------------
     //background
     w = backImage->width;
@@ -220,7 +220,7 @@ void iTex(int x, int y)
         glTexCoord2f(0.0f, 1.0); glVertex2i(0, 0);
 	    glTexCoord2f(0.0f, 0.0f); glVertex2i(0, y);
 		glTexCoord2f(1.0, 0.0f); glVertex2i(x, y);
-		glTexCoord2f(1.0, 1.0); glVertex2i(x, 0);        
+		glTexCoord2f(1.0, 1.0); glVertex2i(x, 0);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
@@ -247,9 +247,9 @@ void iTex(int x, int y)
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
     glPopMatrix();
- 
+
  //------actual castle
-    
+
     glClearColor(1.0, 1.0, 1.0, 0.8);
     glPushMatrix();
     glEnable(GL_ALPHA_TEST);
@@ -289,7 +289,7 @@ void logoTexture(int x, int y){
     glPopMatrix();
 
 
-      
+
 
 }
 
@@ -302,22 +302,22 @@ void zomTex(){
     glAlphaFunc(GL_GREATER, 0.0f);
     glBindTexture(GL_TEXTURE_2D, zombieTex);
     glBegin(GL_QUADS);
-        
+
 		glTexCoord2f(0.0f, 1.0f); glVertex2f(-width,-width);
-        
+
 		glTexCoord2f(0.0f, 0.0f);glVertex2f(-width,width);
-        
+
 		glTexCoord2f(1.0f, 0.0f);glVertex2f(width,width);
-        
+
 		glTexCoord2f(1.0f, 1.0f);glVertex2f(width,-width);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
     glPopMatrix();
-    
+
 }
 
-    
+
 /*void header(int x, int y){
     glColor3ub(100, 100, 160);
     glPushMatrix();
@@ -350,8 +350,8 @@ void drawBox(int x, int y)
 }
 
 //#ifdef PROFILINGC_OFF
-double timer() 
-{	
+double timer()
+{
 	static double t = 0.0;
 	struct timespec ftimeStart, ftimeEnd;
 	clock_gettime(CLOCK_REALTIME, &ftimeStart);
@@ -360,7 +360,7 @@ double timer()
 	//	b=(a&15) - (b&7) - (c&3);
 	//	c=(b&31) - (a&7) - (c&3);
 	//}
-	
+
 	printName();
 	clock_gettime(CLOCK_REALTIME, &ftimeEnd);
 	t += timeDiff(&ftimeStart, &ftimeEnd);
@@ -372,23 +372,4 @@ double timer()
 	ggprint8b(&time, 16, 0x00ffff00, "Timer: %f", t);
 	return t;
 }
-//#endif 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//#endif
