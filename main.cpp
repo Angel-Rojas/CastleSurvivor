@@ -142,10 +142,12 @@ public:
 	char keys[65536];
   Button buttons[10];
   int nbutton;
+	int newState;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		playTime = 0.0;
+		newState = 0;
 		memset(keys, ZERO, 65536);
 		//-----christy
 		//background=1;
@@ -413,10 +415,65 @@ void showCredits(int,int);
 void instructions(int,int);
 void change_toMenu();
 void change_toInstr();
-
+void resetZombies();
+void regenerateZombies();
 //=========================================================================
 // M A I N
 //=========================================================================
+void regenerateZombies() {
+	for (int j=0; j<((int)rnd()%(18*(State+1))); j++) { // generate random based on current State
+		Asteroid *a = new Asteroid;
+		a->nverts = 4;
+		a->vert[0][0] = 0;
+		a->vert[0][1] = 0;
+		a->vert[1][0] = 30;
+		a->vert[1][1] = 0;
+		a->vert[2][0] = 30;
+		a->vert[2][1] = 70;
+		a->vert[3][0] = 0;
+		a->vert[3][1] = 70;
+		//initializing zombie postion-----------------------
+		//initZombiePosition(gl.xres,zombie_pos);
+		a->pos[0] = gl.xres;
+		a->pos[1] = (Flt)(rand() % (gl.yres - 120));
+		a->pos[2] = 0.0f;
+		a->angle = 0.0;
+		a->rotate = rnd() * 4.0 - 2.0;
+		a->color[0] = rnd() + 0.4;
+		a->color[1] = rnd() + 0.3;
+		a->color[2] = rnd() + 0.2;
+		a->vel[0] = (Flt)(rnd() - 3);
+		a->vel[1] = (Flt)(rand()*2.0-1.0);
+		//std::cout << "asteroid" << std::endl;
+		//add to front of linked list
+		a->next = g.ahead;
+		if (g.ahead != NULL)
+				g.ahead->prev = a;
+		g.ahead = a;
+		++g.nasteroids;
+	}
+}
+void resetZombies() {
+	Asteroid *a = g.ahead;
+	 while (a != NULL) {
+ 		a->pos[0] = gl.xres;
+ 		a->pos[1] = (Flt)(rand() % (gl.yres - 120));
+ 		a->pos[2] = 0.0f;
+ 		a->angle = 0.0;
+ 		a->rotate = rnd() * 4.0 - 2.0;
+ 		a->color[0] = rnd() + 0.4;
+ 		a->color[1] = rnd() + 0.3;
+ 		a->color[2] = rnd() + 0.2;
+ 		a->vel[0] = (Flt)(rnd() - 3);
+ 		a->vel[1] = (Flt)(rand()*2.0-1.0);
+ 		//std::cout << "asteroid" << std::endl;
+ 		//add to front of linked list
+		a = a->next;
+	};
+	if (g.nasteroids<10)
+		regenerateZombies();
+}
+
 void action() {
   printf("helloWorld");
 }
@@ -449,7 +506,6 @@ int main()
 			//cout << " AFTER RESET next:" << Next << endl;
 			//cout << " AFTER RESET zombies:" << zombie_kills << endl;
 		} else {
-			printf("render\n");
 			render();
 		}
 		x11.swapBuffers();
@@ -721,6 +777,8 @@ int check_keys(XEvent *e)
 			break;
 		case XK_p:
 			Game_mode = PLAYING;
+			resetZombies();
+			gl.newState = true;
 			break;
 		case XK_o:
 			//cout << "BEFORE zombiekills(o)reset:" <<zombie_kills <<endl;
@@ -1009,13 +1067,13 @@ void physics()
 	//check keys pressed now
 	if (gl.keys[XK_Left]) {
 		g.ship.angle += 4.0;
-		if (g.ship.angle >= 360.0f)
-			g.ship.angle -= 360.0f;
+		if (g.ship.angle >= 180.0f)
+			g.ship.angle -= 180.0f;
 	}
 	if (gl.keys[XK_Right]) {
 		g.ship.angle -= 4.0;
 		if (g.ship.angle < 0.0f)
-			g.ship.angle += 360.0f;
+			g.ship.angle += 180.0f;
 	}
 	if (gl.keys[XK_Up]) {
 		//apply thrust
@@ -1087,9 +1145,10 @@ void render()
     void logoTexture(int, int);
 	switch (Game_mode) {
 		// The below case is the MAIN RENDER function
-    case NEW_GAME:
+    case NEW_GAME: {
  //---------logo
- 		State = 1;
+ 		// health had to reset, state
+ 		State = 0;
 		actualHealth = castleHealth;
     extern GLuint logoTex;
      glClearColor(1.0, 1.0, 1.0, 0.8);
@@ -1109,7 +1168,12 @@ void render()
         logoTexture(gl.xres,gl.yres);
         displayMenu(gl.yres, gl.xres);
       break;
+		}
    case PLAYING:
+	 		if (gl.newState) {
+				regenerateZombies();
+				gl.newState = false;
+			}
 			// nygel timer
 			//timerN(0);
       // // background
@@ -1223,38 +1287,7 @@ void render()
 			//    Game_mode = PAUSED;
 			//else if (waveCountDown(gl.xres,gl.yres)== true){
 			    //g.ahead =NULL;
-			    for (int j=0; j<15; j++) {
-				Asteroid *a = new Asteroid;
-				a->nverts = 4;
-				a->vert[0][0] = 0;
-				a->vert[0][1] = 0;
-				a->vert[1][0] = 30;
-				a->vert[1][1] = 0;
-				a->vert[2][0] = 30;
-				a->vert[2][1] = 70;
-				a->vert[3][0] = 0;
-				a->vert[3][1] = 70;
-				//initializing zombie postion-----------------------
-				//initZombiePosition(gl.xres,zombie_pos);
-				a->pos[0] = gl.xres;
-				a->pos[1] = (Flt)(rand() % (gl.yres - 120));
-				a->pos[2] = 0.0f;
-				a->angle = 0.0;
-				a->rotate = rnd() * 4.0 - 2.0;
-				a->color[0] = rnd() + 0.4;
-				a->color[1] = rnd() + 0.3;
-				a->color[2] = rnd() + 0.2;
-				a->vel[0] = (Flt)(rnd() - 3);
-				a->vel[1] = (Flt)(rand()*2.0-1.0);
-				//std::cout << "asteroid" << std::endl;
-				//add to front of linked list
-				a->next = g.ahead;
-				if (g.ahead != NULL)
-				    g.ahead->prev = a;
-				g.ahead = a;
-				++g.nasteroids;
-
-				}
+					regenerateZombies();
 			}
 
 
